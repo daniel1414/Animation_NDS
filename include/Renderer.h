@@ -19,7 +19,10 @@ public:
 
     static void clearDepthBuffer();
 
-    static void drawQuad(const Vec3& position, const Vec3& size, const Vec2& texCoords, const Vec2& texSize, const Vec3& normal,
+
+    static void drawQuad(const Vec3& position, const Vec3& size, const Vec3& normal, 
+        uint16_t color = RGB15(31, 31, 31), float angle = 0.0f, const Vec3& rotationAxis = {0, 0, 0});
+    static void drawTexturedQuad(const Vec3& position, const Vec3& size, const Vec2& texCoords, const Vec2& texSize, const Vec3& normal,
         uint16_t color = RGB15(31, 31, 31), float angle = 0.0f, const Vec3& rotationAxis = {0, 0, 0});
     static void drawTriangle(const Vec3& position, const Vec3& size, const Vec2& texCoords, const Vec2& texSize, const Vec3& normal,
         uint16_t color = RGB15(31, 31, 31), float angle = 0.0f, const Vec3& rotationAxis = {0, 0, 0});

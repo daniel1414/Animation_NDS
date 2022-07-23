@@ -94,7 +94,66 @@ void Renderer::clearDepthBuffer()
     glClearDepth(GL_MAX_DEPTH);
 }
 
-void Renderer::drawQuad(const Vec3& position, const Vec3& size, const Vec2& texCoords, const Vec2& texSize, const Vec3& normal,
+void Renderer::drawQuad(const Vec3& position, const Vec3& size, const Vec3& normal, 
+    uint16_t color, float angle, const Vec3& rotationAxis)
+{
+    storage.packedCommands[0] = 26;
+
+    setTranslation(position);
+    setScale(size);
+    
+    storage.packedCommands[9] = FIFO_COMMAND_PACK(FIFO_BEGIN, FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16);
+	storage.packedCommands[10] = GL_QUADS; 
+	storage.packedCommands[11] = NORMAL_PACK(inttov10(normal.x), inttov10(normal.y), inttov10(normal.z));
+
+    uint8_t vertexIndicesOffset = 0;
+    if(normal.z == 1)
+    {
+        vertexIndicesOffset = 0;
+    }
+    else if(normal.z == -1)
+    {
+        vertexIndicesOffset = 4;
+    }
+    else if(normal.y == 1)
+    {
+        vertexIndicesOffset = 8;
+    }
+    else if(normal.y == -1)
+    {
+        vertexIndicesOffset = 12;
+    }
+    else if(normal.x == 1)
+    {
+        vertexIndicesOffset = 16;
+    }
+    else if(normal.x == -1)
+    {
+        vertexIndicesOffset = 20;
+    }
+	
+	storage.packedCommands[12] = color | (color << 16);
+    storage.packedCommands[13] = VERTEX_PACK(storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset]], storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset] + 1]);
+    storage.packedCommands[14] = storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset] + 2];
+
+	storage.packedCommands[15] = FIFO_COMMAND_PACK(FIFO_COLOR, FIFO_VERTEX16, FIFO_COLOR, FIFO_VERTEX16);
+	storage.packedCommands[16] = color | (color << 16);
+	storage.packedCommands[17] = VERTEX_PACK(storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 1]], storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 1] + 1]);
+	storage.packedCommands[18] = storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 1] + 2];
+	storage.packedCommands[19] = color;
+	storage.packedCommands[20] = VERTEX_PACK(storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 2]], storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 2] + 1]);
+    storage.packedCommands[21] = storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 2] + 2];
+
+	storage.packedCommands[22] = FIFO_COMMAND_PACK(FIFO_COLOR, FIFO_VERTEX16, MTX_POP, 0);
+	storage.packedCommands[23] = color;
+	storage.packedCommands[24] = VERTEX_PACK(storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 3]], storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 3] + 1]);
+	storage.packedCommands[25] = storage.vertexPositions[storage.vertexIndices[vertexIndicesOffset + 3] + 2];
+    storage.packedCommands[26] = 1; 
+
+    sendToFifo();
+}
+
+void Renderer::drawTexturedQuad(const Vec3& position, const Vec3& size, const Vec2& texCoords, const Vec2& texSize, const Vec3& normal,
     uint16_t color, float angle, const Vec3& rotationAxis)
 {
     storage.packedCommands[0] = 26;

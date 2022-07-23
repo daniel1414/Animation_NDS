@@ -7,7 +7,7 @@
 #include "Log.h"
 #include "Math.h"
 
-#define CULL_FRUSTUM 0
+#define CULL_FRUSTUM 1
 
 class Camera
 {
