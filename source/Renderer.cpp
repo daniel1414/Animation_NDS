@@ -5,12 +5,6 @@
 
 #define RENDERER_STORAGE_SIZE 30
 
-#define MTX_MODE    0x10 // one parameter
-#define MTX_PUSH    0x11 // no parameters
-#define MTX_POP     0x12 // one parameter
-#define MTX_TRANS   0x1C // 3 parameters
-#define MTX_SCALE   0x1B // 3 parameters
-
 struct RendererStorage
 {
     v16 vertexPositions[3 * 12] = {
