@@ -63,7 +63,7 @@ void Renderer::init()
 
 void Renderer::beginScene()
 { 
-    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK | (1 << 11) | POLY_ID(0));
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK | (1 << 11) | POLY_ID(63));
 }
 void Renderer::endScene()
 {
