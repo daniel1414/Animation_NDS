@@ -24,7 +24,7 @@ bool cullFrustum = true;
 
 void drawTriangle()
 {
-	uint16_t color = RGB15(0, 31, 0) & 0x0000FFFF;
+	uint16_t color = RGB15(0, 31, 0);
 
 	uint32_t* fifoData = (uint32_t*)malloc(24 * sizeof(uint32_t));
 	fifoData[0] = 21; // length of command list
