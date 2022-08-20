@@ -19,14 +19,15 @@ include $(DEVKITARM)/ds_rules
 # ICON is the image used to create the game icon, leave blank to use default rule
 # NITRO is a directory that will be accessible via NitroFS
 #---------------------------------------------------------------------------------
-TARGET   := $(shell basename $(CURDIR))
-BUILD    := build
-SOURCES  := source
-INCLUDES := include
-DATA     := data
-GRAPHICS := gfx
-AUDIO    :=
-ICON     :=
+TARGET    := $(shell basename $(CURDIR))
+BUILD     := build
+SOURCES   := source
+INCLUDES  := include
+DATA      := data otherdata
+FBX       := fbx
+GRAPHICS  := gfx
+AUDIO     :=
+ICON      :=
 
 # specify a directory which contains the nitro filesystem
 # this is relative to the Makefile
@@ -72,10 +73,13 @@ ifneq ($(BUILD),$(notdir $(CURDIR)))
 
 export OUTPUT := $(CURDIR)/$(TARGET)
 
+export TARGETDIR := $(CURDIR)
+
 export VPATH := $(CURDIR)/$(subst /,,$(dir $(ICON)))\
                 $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))\
                 $(foreach dir,$(DATA),$(CURDIR)/$(dir))\
-                $(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))
+                $(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))\
+                $(foreach dir,$(FBX),$(CURDIR)/$(dir))
 
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
@@ -84,6 +88,7 @@ CPPFILES := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES   := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 PNGFILES := $(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.png)))
 BINFILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+FBXFILES := $(foreach dir,$(FBX),$(notdir $(wildcard $(dir)/*.fbx)))
 
 # prepare NitroFS directory
 ifneq ($(strip $(NITRO)),)
@@ -126,6 +131,8 @@ export INCLUDE  := $(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir))\
                    $(foreach dir,$(LIBDIRS),-I$(dir)/include)\
                    -I$(CURDIR)/$(BUILD)
 export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+export FBXBINFILES := $(FBXFILES:.fbx=.bin)
 
 ifeq ($(strip $(ICON)),)
   icons := $(wildcard *.bmp)
@@ -177,9 +184,17 @@ $(SOUNDBANK) : $(MODFILES)
 	mmutil $^ -d -o$@ -hsoundbank.h
 
 #---------------------------------------------------------------------------------
-%.bin.o: %.bin
+# rule to create .bin files out of .fbx files
 #---------------------------------------------------------------------------------
-	@echo $(notdir $<)
+%.bin: %.fbx
+#---------------------------------------------------------------------------------
+	@echo Creating $(notdir $@) out of $(notdir $^)
+	fbx2bin -filepath=$< -outdir=$(TARGETDIR)/$(DATA) -o$*
+
+#---------------------------------------------------------------------------------
+%.bin.o: %.bin $(FBXBINFILES)
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<) 
 	$(bin2o)
 
 #---------------------------------------------------------------------------------
