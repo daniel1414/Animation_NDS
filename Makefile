@@ -23,7 +23,7 @@ TARGET    := $(shell basename $(CURDIR))
 BUILD     := build
 SOURCES   := source
 INCLUDES  := include
-DATA      := data otherdata
+DATA      := data
 FBX       := fbx
 GRAPHICS  := gfx
 AUDIO     :=
@@ -189,7 +189,7 @@ $(SOUNDBANK) : $(MODFILES)
 %.bin: %.fbx
 #---------------------------------------------------------------------------------
 	@echo Creating $(notdir $@) out of $(notdir $^)
-	fbx2bin -filepath=$< -outdir=$(TARGETDIR)/$(DATA) -o$*
+	fbx2bin -filepath=$< -outdir=$(TARGETDIR)/$(DATA) -o=$*
 
 #---------------------------------------------------------------------------------
 %.bin.o: %.bin $(FBXBINFILES)
