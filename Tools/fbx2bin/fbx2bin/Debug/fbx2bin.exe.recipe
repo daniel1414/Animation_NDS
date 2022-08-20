@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\Private\Nintendo\devkitPro\Projects\Animation\Tools\fbx2bin\Debug\fbx2bin.exe</FullPath>
+      <FullPath>D:\Private\Nintendo\devkitPro\tools\bin\fbx2bin.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
