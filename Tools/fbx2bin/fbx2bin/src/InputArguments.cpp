@@ -1,5 +1,7 @@
 #include "InputArguments.h"
 
+#include <ostream>
+
 static const std::string filepath = "-filepath=";
 static const std::string directory = "-outdir=";
 static const std::string filename = "-o=";
@@ -26,4 +28,18 @@ InputArguments::InputArguments(int argc, char** argv)
             OutFileName = argument.substr(filename.length(), argument.length() - filename.length());
         }
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const InputArguments& rhs)
+{
+    os << "SourceFilePath: " << rhs.SourceFilePath << "\n"
+        << "OutDirectory: " << rhs.OutDirectory << "\n"
+        << "OutFileName: " << rhs.OutFileName << "\n";
+
+    return os;
+}
+
+bool InputArguments::IsValid() const
+{
+    return !SourceFilePath.empty() && !OutDirectory.empty() && !OutFileName.empty();
 }
