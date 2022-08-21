@@ -71,15 +71,15 @@ LIBDIRS := $(LIBNDS) $(PORTLIBS)
 ifneq ($(BUILD),$(notdir $(CURDIR)))
 #---------------------------------------------------------------------------------
 
-export OUTPUT := $(CURDIR)/$(TARGET)
-
 export TARGETDIR := $(CURDIR)
+
+export OUTPUT := $(CURDIR)/$(TARGET)
 
 export VPATH := $(CURDIR)/$(subst /,,$(dir $(ICON)))\
                 $(foreach dir,$(SOURCES),$(CURDIR)/$(dir))\
                 $(foreach dir,$(DATA),$(CURDIR)/$(dir))\
-                $(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))\
-                $(foreach dir,$(FBX),$(CURDIR)/$(dir))
+                $(foreach dir,$(FBX),$(CURDIR)/$(dir))\
+                $(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))
 
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
@@ -124,15 +124,16 @@ else
 endif
 #---------------------------------------------------------------------------------
 
+export FBXBINFILES := $(addsuffix .bin,$(FBXFILES))
+
 export OFILES   := $(addsuffix .o,$(BINFILES))\
+                   $(addsuffix .o,$(FBXBINFILES))\
                    $(PNGFILES:.png=.o)\
                    $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export INCLUDE  := $(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir))\
                    $(foreach dir,$(LIBDIRS),-I$(dir)/include)\
                    -I$(CURDIR)/$(BUILD)
 export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
-
-export FBXBINFILES := $(FBXFILES:.fbx=.bin)
 
 ifeq ($(strip $(ICON)),)
   icons := $(wildcard *.bmp)
@@ -162,7 +163,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK)
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK) $(FBX)/$(FBXBINFILES)
 
 #---------------------------------------------------------------------------------
 else
@@ -184,18 +185,20 @@ $(SOUNDBANK) : $(MODFILES)
 	mmutil $^ -d -o$@ -hsoundbank.h
 
 #---------------------------------------------------------------------------------
-# rule to create .bin files out of .fbx files
+%.bin.o: %.bin
 #---------------------------------------------------------------------------------
-%.bin: %.fbx
-#---------------------------------------------------------------------------------
-	@echo Creating $(notdir $@) out of $(notdir $^)
-	fbx2bin -filepath=$< -outdir=$(TARGETDIR)/$(DATA) -o=$*
+	@echo $(notdir $<)
+	$(bin2o)
 
 #---------------------------------------------------------------------------------
-%.bin.o: %.bin $(FBXBINFILES)
+# rule to create .bin files out of .fbx files
 #---------------------------------------------------------------------------------
-	@echo $(notdir $<) 
-	$(bin2o)
+%.fbx.bin.o: %.fbx
+#---------------------------------------------------------------------------------
+	@echo converting $(notdir $<)...
+	@fbx2bin -filepath=$< -outdir=$(dir $<) -o=$(notdir $<).bin
+	@bin2s -a 4 -H `(echo $(<F).bin | tr . _)`.h $<.bin | $(AS) -o $(<F).bin.o
+	@echo built $@
 
 #---------------------------------------------------------------------------------
 # This rule creates assembly source files using grit

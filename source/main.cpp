@@ -7,8 +7,7 @@
 #include "grass_side.h"
 #include "texture_classic.h"
 #include "center_cross.h"
-#include "teapot_bin.h"
-#include "Cube_bin.h"
+#include "cube_fbx_bin.h"
 
 #include "Log.h"
 #include "Renderer.h"
@@ -27,8 +26,8 @@ void drawTriangle()
 {
 	uint16_t color = RGB15(0, 31, 0);
 
-	uint32_t* fifoData = (uint32_t*)malloc(17 * sizeof(uint32_t));
-	fifoData[0] = 16; // length of command list
+	uint32_t* fifoData = (uint32_t*)malloc(18 * sizeof(uint32_t));
+	fifoData[0] = 17; // length of command list
 /* 	fifoData[1] = FIFO_COMMAND_PACK(MTX_MODE, MTX_PUSH, MTX_TRANS, MTX_SCALE); // MTX_MODE, MTX_PUSH
 	fifoData[2] = GL_MODELVIEW;
 	// translate
@@ -41,38 +40,38 @@ void drawTriangle()
 	fifoData[8] = inttof32(2); */
 
 	// vertices
-	fifoData[0] = FIFO_COMMAND_PACK(FIFO_BEGIN, FIFO_NOP, FIFO_NOP, FIFO_NOP);
-	fifoData[1] = GL_TRIANGLES;
-	fifoData[2] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
-	fifoData[3] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[4] = color;
-	fifoData[5] = VERTEX_PACK(inttov16(1), inttov16(0)); // x and y coordinate
-	fifoData[6] = 0; // z coordinate
-	fifoData[7] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
-	fifoData[8] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[9] = color;
-	fifoData[10] = VERTEX_PACK(0, inttov16(2));
-	fifoData[11] = 0;
-	fifoData[12] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
-	fifoData[13] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[14] = color;
-	fifoData[15] = VERTEX_PACK(inttov16(-1), 0);
-	fifoData[16] = 0;
+	fifoData[1] = FIFO_COMMAND_PACK(FIFO_BEGIN, FIFO_NOP, FIFO_NOP, FIFO_NOP);
+	fifoData[2] = GL_TRIANGLES;
+	fifoData[3] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[4] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
+	fifoData[5] = color;
+	fifoData[6] = VERTEX_PACK(inttov16(1), inttov16(0)); // x and y coordinate
+	fifoData[7] = 0; // z coordinate
+	fifoData[8] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[9] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
+	fifoData[10] = color;
+	fifoData[11] = VERTEX_PACK(0, inttov16(2));
+	fifoData[12] = 0;
+	fifoData[13] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[14] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
+	fifoData[15] = color;
+	fifoData[16] = VERTEX_PACK(inttov16(-1), 0);
+	fifoData[17] = 0;
 
 	//glCallList(fifoData);
 	//glCallList(reinterpret_cast<const u32*>(teapot_bin));
-	glCallList(reinterpret_cast<const u32*>(Cube_bin));
+	glCallList(reinterpret_cast<const u32*>(cube_fbx_bin));
 
 	static int dupa = 1;
 
-	if(dupa == 1)
+	/* if(dupa == 1)
 	{
 		for(int i = 0; i < 4 * 7; i++)
 		{
 			LOG("%x    :     %x", Cube_bin[i], fifoData[i / 4 ] & (0xFF << ((i%4) * 8)));
 		}
 		dupa++;
-	}
+	} */
 
 	free(fifoData);
 }
