@@ -51,11 +51,11 @@ int main(int argc, char** argv)
     FILE* file;
     std::string OutFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutFileName;
     fopen_s(&file, OutFilePath.c_str(), "wb");
-	if (file == nullptr)
+	/*if (file == nullptr)
 	{
 		std::cout << "faied to open file " << OutFilePath << std::endl;
 		return -1;
-	}
+	}*/
 	drawTriangle(file);
     fclose(file);
 
