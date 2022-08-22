@@ -7,6 +7,8 @@
 #include "InputArguments.h"
 #include "Defines.h"
 
+#include "Mesh.h"
+
 #define DataType uint8_t
 
 void drawTriangle(FILE* file)
@@ -42,33 +44,28 @@ int main(int argc, char** argv)
 {
     InputArguments inputArguments(argc, argv);
 
+	inputArguments.SourceFilePath = "cube.fbx";
+	inputArguments.OutDirectory = "build";
+	inputArguments.OutFileName = "cube.fbx.bin";
+
     if (!inputArguments.IsValid())
     {
         std::cout << "ERROR::" << "Input arguments invalid!" << std::endl;
 		return -1;
     }
 
+	Model model(inputArguments.SourceFilePath);
+
     FILE* file;
     std::string OutFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutFileName;
     fopen_s(&file, OutFilePath.c_str(), "wb");
-	/*if (file == nullptr)
+	if (file == nullptr)
 	{
 		std::cout << "faied to open file " << OutFilePath << std::endl;
 		return -1;
-	}*/
+	}
 	drawTriangle(file);
     fclose(file);
-
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(inputArguments.SourceFilePath, aiProcess_Triangulate | aiProcess_FlipUVs);
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-    {
-        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-        return -1;
-    }
-
-    
 
     return 0;
 }
