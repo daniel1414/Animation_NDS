@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "Defines.h"
+
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
     : vertices(vertices), indices(indices), textures(textures)
 {
@@ -39,6 +41,8 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     Mesh Result;
+
+    Result.glBeginParam = mesh->mFaces->mNumIndices == 3 ? GL_TRIANGLES : GL_QUADS;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {

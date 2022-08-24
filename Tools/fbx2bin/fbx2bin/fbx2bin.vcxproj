@@ -158,11 +158,13 @@
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\InputArguments.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ModelConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Defines.h" />
     <ClInclude Include="include\InputArguments.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\ModelConverter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

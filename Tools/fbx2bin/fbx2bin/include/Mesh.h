@@ -28,6 +28,8 @@ public:
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
 
+    uint32_t glBeginParam;
+
     Mesh() = default;
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
 
@@ -52,4 +54,6 @@ private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+
+    friend class ModelConverter;
 };

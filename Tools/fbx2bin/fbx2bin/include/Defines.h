@@ -17,12 +17,19 @@ typedef short int v16;       /*!< \brief vertex 4.12 fixed format */
 #define floattov16(n)        ((v16)((n) * (1 << 12))) /*!< \brief convert float to v16 */
 #define VERTEX_PACK(x,y)     (uint32_t)(((x) & 0xFFFF) | ((y) << 16)) /*!< \brief Pack to v16 values into one 32bit value */
 
-typedef short int v10;       /*!< \brief normal .10 fixed point, NOT USED FOR 10bit VERTEXES!!!*/
-#define inttov10(n)          ((n) << 9) /*!< \brief convert int to v10 */
-#define f32tov10(n)          ((v10)(n >> 3)) /*!< \brief convert f32 to v10 */
-#define v10toint(n)          ((n) >> 9) /*!< \brief convert v10 to int */
-#define floattov10(n)        ((n>.998) ? 0x1FF : ((v10)((n)*(1<<9)))) /*!< \brief convert float to v10 */
-#define NORMAL_PACK(x,y,z)   (uint32_t)(((x) & 0x3FF) | (((y) & 0x3FF) << 10) | ((z) << 20)) /*!< \brief Pack 3 v10 normals into a 32bit value */
+typedef short int v10;        /*!< \brief vertex 4.6 fixed point, USED FOR 10bit VERTEXES!!!*/
+#define inttov10(n)          ((n) << 6) /*!< \brief convert int to v10 */
+#define f32tov10(n)          ((n) >> 6) /*!< \brief f32 to v10 */
+#define v10toint(n)          ((n) >> 6) /*!< \brief convert v10 to int */
+#define floattov10(n)        ((v10)((n) * (1 << 6))) /*!< \brief convert float to v10 */
+#define VERTEX10_PACK(x,y,z) (uint32_t)(((x) & 0x3FF) | ((y & 0x3FF) << 10) | ((z & 0x3FF) << 20)) /*!< \brief Pack to v16 values into one 32bit value */
+
+typedef short int vn10;       /*!< \brief normal .10 fixed point, NOT USED FOR 10bit VERTEXES!!!*/
+#define inttovn10(n)          ((n) << 9) /*!< \brief convert int to v10 */
+#define f32tovn10(n)          ((vn10)(n >> 3)) /*!< \brief convert f32 to v10 */
+#define vn10toint(n)          ((n) >> 9) /*!< \brief convert v10 to int */
+#define floattovn10(n)        ((n>.998) ? 0x1FF : ((vn10)((n)*(1<<9)))) /*!< \brief convert float to v10 */
+#define NORMAL_PACK(x,y,z)    (uint32_t)(((x) & 0x3FF) | (((y) & 0x3FF) << 10) | ((z) << 20)) /*!< \brief Pack 3 vn10 normals into a 32bit value */
 
 typedef enum {
     GL_TRIANGLES = 0, /*!< draw triangles with each 3 vertices defining a triangle */

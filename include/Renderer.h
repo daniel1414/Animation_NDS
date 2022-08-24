@@ -34,6 +34,8 @@ public:
         uint16_t color = RGB15(31, 31, 31), float angle = 0.0f, const Vec3& rotationAxis = {0, 0, 0});
     static void drawArrow(const Vec3& position, const Vec3& direction, uint16 color = RGB15(31, 0, 0));
     
+    // TODO: add position, rotation and scale parameters
+    static void drawModel(const void* model);
 private:
     static void setTranslation(const Vec3& translation);
     static void setScale(const Vec3& scale);

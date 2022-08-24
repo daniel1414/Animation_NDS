@@ -63,7 +63,13 @@ void Renderer::init()
 
 void Renderer::beginScene()
 { 
-    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK | (1 << 11) | POLY_ID(63));
+    glLight(0, RGB15(31,31,31) , 0,				  floattov10(-1.0),		 0);
+	glLight(1, RGB15(31,0,31),   0,				  floattov10(1) - 1,			 0);
+	glLight(2, RGB15(0,31,0) ,   floattov10(-1.0), 0,					 0);
+	glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,					 0);
+
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK | (1 << 11) | POLY_ID(63)
+        | POLY_FORMAT_LIGHT0 | POLY_FORMAT_LIGHT1 | POLY_FORMAT_LIGHT2 | POLY_FORMAT_LIGHT3);
 }
 void Renderer::endScene()
 {
@@ -271,6 +277,11 @@ void Renderer::drawArrow(const Vec3& position, const Vec3& direction, uint16 col
     glPopMatrix(1);
 }
 
+void Renderer::drawModel(const void* model)
+{
+    glCallList(reinterpret_cast<const u32*>(model));
+}
+
 void Renderer::setTranslation(const Vec3& translation)
 {
     storage.packedCommands[1] = FIFO_COMMAND_PACK(MTX_MODE, MTX_PUSH, MTX_TRANS, MTX_SCALE);
@@ -287,6 +298,8 @@ void Renderer::setScale(const Vec3& scale)
     storage.packedCommands[7] = scale.y;
     storage.packedCommands[8] = scale.z;
 }
+
+
 
 void Renderer::sendToFifo()
 {

@@ -7,7 +7,8 @@
 #include "grass_side.h"
 #include "texture_classic.h"
 #include "center_cross.h"
-#include "cube_fbx_bin.h"
+#include "ColorCube_fbx_bin.h"
+#include "FewObjects_fbx_bin.h"
 
 #include "Log.h"
 #include "Renderer.h"
@@ -58,20 +59,7 @@ void drawTriangle()
 	fifoData[16] = VERTEX_PACK(inttov16(-1), 0);
 	fifoData[17] = 0;
 
-	//glCallList(fifoData);
-	//glCallList(reinterpret_cast<const u32*>(teapot_bin));
-	glCallList(reinterpret_cast<const u32*>(cube_fbx_bin));
-
-	static int dupa = 1;
-
-	/* if(dupa == 1)
-	{
-		for(int i = 0; i < 4 * 7; i++)
-		{
-			LOG("%x    :     %x", Cube_bin[i], fifoData[i / 4 ] & (0xFF << ((i%4) * 8)));
-		}
-		dupa++;
-	} */
+	glCallList(fifoData);
 
 	free(fifoData);
 }
@@ -91,6 +79,7 @@ int main(void) {
 	Renderer::setClearColor(0, 0, 0, 31);
 	Renderer::setViewport(0, 0, 255, 191);
 	Renderer::setMaterialProperty(GL_EMISSION, RGB15(31, 31, 31));
+	Renderer::setMaterialProperty(GL_AMBIENT, RGB15(31, 31, 31));
 
 	Texture classicTexture = Texture(GL_RGB16, TEXTURE_SIZE_512, TEXTURE_SIZE_512, TEXGEN_OFF, (void*)texture_classicBitmap);
 	classicTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_COLOR0_TRANSPARENT);
@@ -128,6 +117,10 @@ int main(void) {
 		Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
 
 		//Texture::Bind(classicTexture.GetID());
+
+		// draw
+		Renderer::drawModel(FewObjects_fbx_bin);
+		//glCallList(reinterpret_cast<const u32*>(ColorCube_fbx_bin));
 
 		//Renderer::drawTexturedQuad({0, 0, 0}, {inttof32(1), inttof32(1), 0}, {0, 0}, {16, 16}, {0, 0, 1});
 		// draw bottom plane
