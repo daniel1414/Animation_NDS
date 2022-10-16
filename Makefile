@@ -163,7 +163,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK) $(FBX)/$(FBXBINFILES)
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK) $(foreach file, $(FBXBINFILES), $(FBX)/$(file))
 
 #---------------------------------------------------------------------------------
 else

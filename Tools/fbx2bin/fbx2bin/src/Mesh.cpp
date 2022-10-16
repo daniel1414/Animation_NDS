@@ -72,7 +72,29 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // process material
     if (mesh->mMaterialIndex >= 0)
     {
-        // don't cate about material for now
+        //aiMaterial* Material = scene->mMaterials[mesh->mMaterialIndex];
+        //aiString texture_file;
+
+        //Material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), texture_file);
+        //
+        //if (const aiTexture* texture = scene->GetEmbeddedTexture(texture_file.C_Str()))
+        //{
+        //    //returned pointer is not null, read texture from memory
+        //    for (int i = 0; i < texture->mWidth; i++)
+        //    {
+        //        aiColor4D color = texture->pcData[i];
+        //        std::cout << color.r << " " << color.g << " " << color.b << " ";
+        //        if (i % 4 == 0)
+        //        {
+        //            std::cout << "\n";
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    //regular file, check if it exists and read it
+        //    int x = 0;
+        //}
     }
 
     return Result;

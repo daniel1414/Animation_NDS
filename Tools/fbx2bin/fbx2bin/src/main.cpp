@@ -44,11 +44,10 @@ int main(int argc, char** argv)
 
 	if (argc == 1)
 	{
-		inputArguments.SourceFilePath = "FewObjects.fbx";
+		inputArguments.SourceFilePath = "TexturedCube.fbx";
 		inputArguments.OutDirectory = "build";
-		inputArguments.OutFileName = "FewObjects.fbx.bin";
+		inputArguments.OutFileName = "TexturedCube.fbx.bin";
 	}
-
 
     if (!inputArguments.IsValid())
     {

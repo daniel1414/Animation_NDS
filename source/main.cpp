@@ -7,8 +7,9 @@
 #include "grass_side.h"
 #include "texture_classic.h"
 #include "center_cross.h"
+#include "BlenderImage.h"
 #include "ColorCube_fbx_bin.h"
-#include "FewObjects_fbx_bin.h"
+#include "TexturedCube_fbx_bin.h"
 
 #include "Log.h"
 #include "Renderer.h"
@@ -43,19 +44,19 @@ void drawTriangle()
 	// vertices
 	fifoData[1] = FIFO_COMMAND_PACK(FIFO_BEGIN, FIFO_NOP, FIFO_NOP, FIFO_NOP);
 	fifoData[2] = GL_TRIANGLES;
-	fifoData[3] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[3] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_TEX_COORD, FIFO_VERTEX16, FIFO_NOP);
 	fifoData[4] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[5] = color;
+	fifoData[5] = TEXTURE_PACK(inttot16(0), inttot16(0)); //color;
 	fifoData[6] = VERTEX_PACK(inttov16(1), inttov16(0)); // x and y coordinate
 	fifoData[7] = 0; // z coordinate
-	fifoData[8] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[8] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_TEX_COORD, FIFO_VERTEX16, FIFO_NOP);
 	fifoData[9] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[10] = color;
+	fifoData[10] = TEXTURE_PACK(inttot16(16), inttot16(0)); //color;
 	fifoData[11] = VERTEX_PACK(0, inttov16(2));
 	fifoData[12] = 0;
-	fifoData[13] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX16, FIFO_NOP);
+	fifoData[13] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_TEX_COORD, FIFO_VERTEX16, FIFO_NOP);
 	fifoData[14] = NORMAL_PACK(0, 0, floattov10(.97)); // point to positive z
-	fifoData[15] = color;
+	fifoData[15] = TEXTURE_PACK(inttot16(8), inttot16(16)); //color;
 	fifoData[16] = VERTEX_PACK(inttov16(-1), 0);
 	fifoData[17] = 0;
 
@@ -78,12 +79,17 @@ int main(void) {
 	Renderer::init();
 	Renderer::setClearColor(0, 0, 0, 31);
 	Renderer::setViewport(0, 0, 255, 191);
+	Renderer::setMaterialProperty(GL_DIFFUSE, RGB15(31, 31, 31));
 	Renderer::setMaterialProperty(GL_EMISSION, RGB15(31, 31, 31));
 	Renderer::setMaterialProperty(GL_AMBIENT, RGB15(31, 31, 31));
 
-	Texture classicTexture = Texture(GL_RGB16, TEXTURE_SIZE_512, TEXTURE_SIZE_512, TEXGEN_OFF, (void*)texture_classicBitmap);
+/* 	Texture classicTexture = Texture(GL_RGB16, TEXTURE_SIZE_512, TEXTURE_SIZE_512, TEXGEN_OFF, (void*)texture_classicBitmap);
 	classicTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_COLOR0_TRANSPARENT);
-	classicTexture.SetPalette(texture_classicPalLen / 2, (uint16*)texture_classicPal);
+	classicTexture.SetPalette(texture_classicPalLen / 2, (uint16*)texture_classicPal); */
+
+	Texture BlenderImage = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BlenderImageBitmap);
+	BlenderImage.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	BlenderImage.SetPalette(BlenderImagePalLen / 2, (uint16*)BlenderImagePal);
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
@@ -116,16 +122,15 @@ int main(void) {
 		Renderer::drawArrow({0, 0, 0}, {0, inttof32(1), 0}, RGB15(0, 31, 0));
 		Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
 
-		//Texture::Bind(classicTexture.GetID());
+		Texture::Bind(BlenderImage.GetID());
 
 		// draw
-		Renderer::drawModel(FewObjects_fbx_bin);
-		//glCallList(reinterpret_cast<const u32*>(ColorCube_fbx_bin));
+		Renderer::drawModel(TexturedCube_fbx_bin);
 
-		//Renderer::drawTexturedQuad({0, 0, 0}, {inttof32(1), inttof32(1), 0}, {0, 0}, {16, 16}, {0, 0, 1});
+		//Renderer::drawTexturedQuad({0, 0, 0}, {inttof32(1), inttof32(1), 0}, {0, 0}, {256, 256}, {0, 0, 1});
+		//drawTriangle();
+
 		// draw bottom plane
-		drawTriangle();
-
 		Renderer::drawQuad({inttof32(-10), inttof32(-2), inttof32(-10)}, {inttof32(20), 0, inttof32(20)}, {0, 1, 0}, RGB15(31, 0, 0));
 
 		Renderer::endScene();

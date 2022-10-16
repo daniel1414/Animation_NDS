@@ -33,7 +33,7 @@ uint32_t* ModelConverter::ToNintendoInstructions(uint32_t& OutSize)
         for (unsigned int index : mesh.indices)
         {
             // command pack
-            Data[SPR++] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_COLOR, FIFO_VERTEX10, FIFO_NOP);
+            Data[SPR++] = FIFO_COMMAND_PACK(FIFO_NORMAL, FIFO_TEX_COORD, FIFO_VERTEX10, FIFO_NOP);
 
             // get the normal of the vertex
             vn10 nx = floattovn10(mesh.vertices[index].Normal.x);
@@ -41,8 +41,8 @@ uint32_t* ModelConverter::ToNintendoInstructions(uint32_t& OutSize)
             vn10 nz = floattovn10(mesh.vertices[index].Normal.z);
             Data[SPR++] = NORMAL_PACK(nx, ny, nz);
 
-            // get the color of the vertes (hardcoded for now)
-            Data[SPR++] = ((31) << 5);
+            // fuck the vertex color, texture is more important
+            Data[SPR++] = TEXTURE_PACK(floattot16(mesh.vertices[index].TexCoords.x * 256.0f), floattot16(mesh.vertices[index].TexCoords.y * 256.0f));
 
             // get the vertex position of the vertex
             v10 x = floattov10(mesh.vertices[index].Position.x);
