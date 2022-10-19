@@ -10,6 +10,8 @@
 #include "BlenderImage.h"
 #include "ColorCube_fbx_bin.h"
 #include "TexturedCube_fbx_bin.h"
+#include "Monkey_fbx_bin.h"
+#include "Monkey.h"
 
 #include "Log.h"
 #include "Renderer.h"
@@ -87,14 +89,19 @@ int main(void) {
 	classicTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_COLOR0_TRANSPARENT);
 	classicTexture.SetPalette(texture_classicPalLen / 2, (uint16*)texture_classicPal); */
 
-	Texture BlenderImage = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BlenderImageBitmap);
+	/* Texture BlenderImage = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BlenderImageBitmap);
 	BlenderImage.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
-	BlenderImage.SetPalette(BlenderImagePalLen / 2, (uint16*)BlenderImagePal);
+	BlenderImage.SetPalette(BlenderImagePalLen / 2, (uint16*)BlenderImagePal); */
+	
+	Texture MonkeyTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)MonkeyBitmap);
+	MonkeyTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	MonkeyTexture.SetPalette(BlenderImagePalLen / 2, (uint16*)MonkeyPal);
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
 	//SpriteAttributes centerCrossAttr = {"centerCross", 256 / 2, 192 / 2, (void*)center_crossTiles, center_crossTilesLen, (void*)center_crossPal, center_crossPalLen, SpriteSize_16x16};
 	//Sprite* center_cross = Sprite::create(centerCrossAttr);
+
 
 	while(1) {
 
@@ -122,10 +129,14 @@ int main(void) {
 		Renderer::drawArrow({0, 0, 0}, {0, inttof32(1), 0}, RGB15(0, 31, 0));
 		Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
 
-		Texture::Bind(BlenderImage.GetID());
+		Texture::Bind(MonkeyTexture.GetID());
 
 		// draw
-		Renderer::drawModel(TexturedCube_fbx_bin);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslate3f32(0, 0, inttof32(-2));
+		Renderer::drawModel(Monkey_fbx_bin);
+		glPopMatrix(1);
 
 		//Renderer::drawTexturedQuad({0, 0, 0}, {inttof32(1), inttof32(1), 0}, {0, 0}, {256, 256}, {0, 0, 1});
 		//drawTriangle();
