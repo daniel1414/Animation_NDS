@@ -7,11 +7,15 @@
 #include "grass_side.h"
 #include "texture_classic.h"
 #include "center_cross.h"
-#include "BlenderImage.h"
-#include "ColorCube_fbx_bin.h"
-#include "TexturedCube_fbx_bin.h"
-#include "Monkey_fbx_bin.h"
-#include "Monkey.h"
+
+#include "BoxAnim_fbx_bin.h"
+#include "BoxAnimTexture.h"
+
+//#include "Monkey_fbx_bin.h"
+//#include "Monkey.h"
+
+//#include "Fox_fbx_bin.h"
+//#include "FoxTexture.h"
 
 #include "Log.h"
 #include "Renderer.h"
@@ -79,7 +83,7 @@ int main(void) {
 	//Sprite::init(SpriteMapping_1D_32, false);
 
 	Renderer::init();
-	Renderer::setClearColor(0, 0, 0, 31);
+	Renderer::setClearColor(3, 3, 3, 15);
 	Renderer::setViewport(0, 0, 255, 191);
 	Renderer::setMaterialProperty(GL_DIFFUSE, RGB15(31, 31, 31));
 	Renderer::setMaterialProperty(GL_EMISSION, RGB15(31, 31, 31));
@@ -89,19 +93,22 @@ int main(void) {
 	classicTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_COLOR0_TRANSPARENT);
 	classicTexture.SetPalette(texture_classicPalLen / 2, (uint16*)texture_classicPal); */
 
-	/* Texture BlenderImage = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BlenderImageBitmap);
-	BlenderImage.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
-	BlenderImage.SetPalette(BlenderImagePalLen / 2, (uint16*)BlenderImagePal); */
+	Texture BoxAnimTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BoxAnimTextureBitmap);
+	BoxAnimTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	BoxAnimTexture.SetPalette(BoxAnimTexturePalLen / 2, (uint16*)BoxAnimTexturePal);
 	
-	Texture MonkeyTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)MonkeyBitmap);
+	/* Texture MonkeyTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)MonkeyBitmap);
 	MonkeyTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
-	MonkeyTexture.SetPalette(BlenderImagePalLen / 2, (uint16*)MonkeyPal);
+	MonkeyTexture.SetPalette(MonkeyPalLen / 2, (uint16*)MonkeyPal); */
+
+/* 	Texture FoxTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)FoxTextureBitmap);
+	FoxTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	FoxTexture.SetPalette(FoxTexturePalLen / 2, (uint16*)FoxTexturePal); */
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
 	//SpriteAttributes centerCrossAttr = {"centerCross", 256 / 2, 192 / 2, (void*)center_crossTiles, center_crossTilesLen, (void*)center_crossPal, center_crossPalLen, SpriteSize_16x16};
 	//Sprite* center_cross = Sprite::create(centerCrossAttr);
-
 
 	while(1) {
 
@@ -129,20 +136,23 @@ int main(void) {
 		Renderer::drawArrow({0, 0, 0}, {0, inttof32(1), 0}, RGB15(0, 31, 0));
 		Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
 
-		Texture::Bind(MonkeyTexture.GetID());
+		//Texture::Bind(TestTexture.GetID());
+		// Remember to unbind after rendered the related models
+		BoxAnimTexture.Bind();
 
-		// draw
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glTranslate3f32(0, 0, inttof32(-2));
-		Renderer::drawModel(Monkey_fbx_bin);
-		glPopMatrix(1);
+		//glMatrixMode(GL_MODELVIEW);
+		//glPushMatrix();
+		//glTranslate3f32(inttof32(0), inttof32(2), inttof32(-3));
+		Renderer::drawModel(BoxAnim_fbx_bin);
+		//glPopMatrix(1);
+
+		Texture::Bind(0);
+
 
 		//Renderer::drawTexturedQuad({0, 0, 0}, {inttof32(1), inttof32(1), 0}, {0, 0}, {256, 256}, {0, 0, 1});
-		//drawTriangle();
 
 		// draw bottom plane
-		Renderer::drawQuad({inttof32(-10), inttof32(-2), inttof32(-10)}, {inttof32(20), 0, inttof32(20)}, {0, 1, 0}, RGB15(31, 0, 0));
+		Renderer::drawQuad({inttof32(-5), inttof32(-2), inttof32(-5)}, {inttof32(10), 0, inttof32(10)}, {0, 1, 0}, RGB15(28, 3, 3));
 
 		Renderer::endScene();
 

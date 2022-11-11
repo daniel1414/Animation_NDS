@@ -44,9 +44,9 @@ int main(int argc, char** argv)
 
 	if (argc == 1)
 	{
-		inputArguments.SourceFilePath = "TexturedCube.fbx";
+		inputArguments.SourceFilePath = "BoxAnim.fbx";
 		inputArguments.OutDirectory = "build";
-		inputArguments.OutFileName = "TexturedCube.fbx.bin";
+		inputArguments.OutFileName = "BoxAnim.fbx.bin";
 	}
 
     if (!inputArguments.IsValid())

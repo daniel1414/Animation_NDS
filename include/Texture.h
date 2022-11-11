@@ -13,6 +13,8 @@ public:
     void Bind();
     static void Bind(int id);
 
+    static void Unbind();
+
     int GetID() const;
 private:
     int m_id;

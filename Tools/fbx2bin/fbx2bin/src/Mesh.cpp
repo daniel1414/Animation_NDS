@@ -1,6 +1,7 @@
 #include "Mesh.h"
 
 #include <iostream>
+#include <iomanip>
 
 #include "Defines.h"
 
@@ -44,22 +45,42 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
     Result.glBeginParam = mesh->mFaces->mNumIndices == 3 ? GL_TRIANGLES : GL_QUADS;
 
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    // For every vertex
+    for (unsigned int VertexID = 0; VertexID < mesh->mNumVertices; VertexID++)
     {
         // process vertex positions, normals and texture coordinates
         Vertex vertex;
-        vertex.Position = glm::vec3{ mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
-        vertex.Normal = glm::vec3{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+        vertex.Position = glm::vec3{ mesh->mVertices[VertexID].x, mesh->mVertices[VertexID].y, mesh->mVertices[VertexID].z };
+        vertex.Normal = glm::vec3{ mesh->mNormals[VertexID].x, mesh->mNormals[VertexID].y, mesh->mNormals[VertexID].z };
 
         if (mesh->mTextureCoords[0])
         {
-            vertex.TexCoords = glm::vec2{ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+            vertex.TexCoords = glm::vec2{ mesh->mTextureCoords[0][VertexID].x, mesh->mTextureCoords[0][VertexID].y };
         }
         else
         {
             vertex.TexCoords = glm::vec2{ 0.0f, 0.0f };
         }
-        
+
+        // For each bone - Such bad code, please change in the future
+        //for (unsigned int BoneID = 0; BoneID < mesh->mNumBones; BoneID++)
+        //{
+        //    aiBone* Bone = mesh->mBones[BoneID];
+
+        //    // For each bone weight
+        //    for (unsigned int WeightID = 0; WeightID < Bone->mNumWeights; WeightID++)
+        //    {
+        //        aiVertexWeight& Weight = Bone->mWeights[WeightID];
+
+        //        if (Weight.mVertexId == VertexID)
+        //        {
+        //            vertex.BoneIDs.push_back(BoneID);
+        //            vertex.BoneWeights.push_back(Weight.mWeight);
+        //            std::cout << "Vertex " << VertexID << " affectex by bone " << BoneID << " (" << Bone->mName.C_Str() << ")" << " with weight " << Weight.mWeight << "\n";
+        //        }
+        //    }
+        //}
+
         Result.vertices.push_back(vertex);
     }
     // process indices
@@ -68,6 +89,24 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         aiFace& face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             Result.indices.push_back(face.mIndices[j]);
+    }
+
+    // Process bones
+    for (unsigned int BoneID = 0; BoneID < mesh->mNumBones; BoneID++)
+    {
+        aiBone* Bone = mesh->mBones[BoneID];
+
+        printBoneOffsetMatrix(Bone);
+
+        // For each bone weight
+        for (unsigned int WeightID = 0; WeightID < Bone->mNumWeights; WeightID++)
+        {
+            aiVertexWeight& Weight = Bone->mWeights[WeightID];
+
+            Result.vertices[Weight.mVertexId].BoneIDs.push_back(BoneID);
+            Result.vertices[Weight.mVertexId].BoneWeights.push_back(Weight.mWeight);
+            std::cout << "Vertex " << Weight.mVertexId << " affected by bone " << BoneID << " (" << Bone->mName.C_Str() << ")" << " with weight " << Weight.mWeight << "\n";
+        }
     }
     // process material
     if (mesh->mMaterialIndex >= 0)
@@ -97,10 +136,56 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         //}
     }
 
+    parseNodeHierarchy(scene);
+
     return Result;
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
     return {};
+}
+
+void Model::printBoneOffsetMatrix(aiBone* Bone)
+{
+    aiMatrix4x4& m = Bone->mOffsetMatrix;
+
+    std::cout << "Bone " << Bone->mName.C_Str() << " offset matrix:\n";
+    printMatrix(m, 4);
+}
+
+void Model::printMatrix(const aiMatrix4x4& m, int indent)
+{
+    std::string indentString;
+    indentString.resize(indent, ' ');
+
+    printf("%s%.4f %.4f %.4f %.4f\n", indentString.c_str(), m.a1, m.a2, m.a3, m.a4);
+    printf("%s%.4f %.4f %.4f %.4f\n", indentString.c_str(), m.b1, m.b2, m.b3, m.b4);
+    printf("%s%.4f %.4f %.4f %.4f\n", indentString.c_str(), m.c1, m.c2, m.c3, m.c4);
+    printf("%s%.4f %.4f %.4f %.4f\n", indentString.c_str(), m.d1, m.d2, m.d3, m.d4);
+}
+
+void Model::parseNodeHierarchy(const aiScene* scene)
+{
+    parseNode(scene->mRootNode, 0);
+}
+
+void Model::parseNode(const aiNode* Node, int indent)
+{
+    if (!Node)
+    {
+        return;
+    }
+
+    std::string indentString;
+    indentString.resize(indent, ' ');
+
+    printf("%s-- NODE %s --\n", indentString.c_str(), Node->mName.C_Str());
+    printMatrix(Node->mTransformation, indent);
+    std::cout << std::endl;
+    for (int child = 0; child < Node->mNumChildren; child++)
+    {
+        parseNode(Node->mChildren[child], indent + 4);
+        std::cout << std::endl;
+    }
 }

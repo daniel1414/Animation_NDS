@@ -38,6 +38,11 @@ void Texture::Bind(int id)
     }
 }
 
+void Texture::Unbind()
+{
+    glBindTexture(0, 0);
+}
+
 int Texture::GetID() const
 {
     return m_id;

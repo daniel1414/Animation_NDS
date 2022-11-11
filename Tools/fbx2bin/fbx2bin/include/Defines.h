@@ -1,6 +1,6 @@
 #pragma once
 
-
+#define RGB15(r,g,b)  ((r)|((g)<<5)|((b)<<10))
 #define FIFO_COMMAND_PACK(c1,c2,c3,c4) (((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1))
 
 typedef short t16;        /*!< \brief text coordinate 12.4 fixed point */
@@ -17,7 +17,7 @@ typedef short int v16;       /*!< \brief vertex 4.12 fixed format */
 #define floattov16(n)        ((v16)((n) * (1 << 12))) /*!< \brief convert float to v16 */
 #define VERTEX_PACK(x,y)     (uint32_t)(((x) & 0xFFFF) | ((y) << 16)) /*!< \brief Pack to v16 values into one 32bit value */
 
-typedef short int v10;        /*!< \brief vertex 4.6 fixed point, USED FOR 10bit VERTEXES!!!*/
+typedef short int v10;        /*!< \brief vertex 4.6 fixed point, USED FOR 10bit VERTEXES!!! MAX 7.984375, MIN -8.0*/
 #define inttov10(n)          ((n) << 6) /*!< \brief convert int to v10 */
 #define f32tov10(n)          ((n) >> 6) /*!< \brief f32 to v10 */
 #define v10toint(n)          ((n) >> 6) /*!< \brief convert v10 to int */

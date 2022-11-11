@@ -13,6 +13,9 @@ struct Vertex
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
+
+    std::vector<int> BoneIDs;
+    std::vector<float> BoneWeights;
 };
 
 struct Texture
@@ -53,6 +56,13 @@ private:
     void loadModel(const std::string& path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
+    void printBoneOffsetMatrix(aiBone* Bone);
+    void printMatrix(const aiMatrix4x4& m, int indent);
+    void parseNodeHierarchy(const aiScene* scene);
+    void parseNode(const aiNode* Node, int indent);
+
+    // todo: textures? here?
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
     friend class ModelConverter;
