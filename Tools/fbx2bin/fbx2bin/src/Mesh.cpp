@@ -96,7 +96,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
         aiBone* Bone = mesh->mBones[BoneID];
 
-        printBoneOffsetMatrix(Bone);
+        //printBoneOffsetMatrix(Bone);
 
         // For each bone weight
         for (unsigned int WeightID = 0; WeightID < Bone->mNumWeights; WeightID++)
@@ -105,7 +105,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
             Result.vertices[Weight.mVertexId].BoneIDs.push_back(BoneID);
             Result.vertices[Weight.mVertexId].BoneWeights.push_back(Weight.mWeight);
-            std::cout << "Vertex " << Weight.mVertexId << " affected by bone " << BoneID << " (" << Bone->mName.C_Str() << ")" << " with weight " << Weight.mWeight << "\n";
+            //std::cout << "Vertex " << Weight.mVertexId << " affected by bone " << BoneID << " (" << Bone->mName.C_Str() << ")" << " with weight " << Weight.mWeight << "\n";
         }
     }
     // process material
@@ -136,7 +136,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         //}
     }
 
-    parseNodeHierarchy(scene);
+    //parseNodeHierarchy(scene);
 
     return Result;
 }

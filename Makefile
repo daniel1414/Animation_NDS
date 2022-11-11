@@ -25,6 +25,7 @@ SOURCES   := source
 INCLUDES  := include
 DATA      := data
 FBX       := fbx
+FBXBUILD  := $(FBX)/$(BUILD)
 GRAPHICS  := gfx
 AUDIO     :=
 ICON      :=
@@ -163,7 +164,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK) $(foreach file, $(FBXBINFILES), $(FBX)/$(file))
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(SOUNDBANK) $(FBXBUILD)
 
 #---------------------------------------------------------------------------------
 else
@@ -195,9 +196,10 @@ $(SOUNDBANK) : $(MODFILES)
 #---------------------------------------------------------------------------------
 %.fbx.bin.o: %.fbx
 #---------------------------------------------------------------------------------
+	@mkdir -p $(dir $<)$(BUILD)
 	@echo converting $(notdir $<)...
-	@fbx2bin -filepath=$< -outdir=$(dir $<) -o=$(notdir $<).bin
-	@bin2s -a 4 -H `(echo $(<F).bin | tr . _)`.h $<.bin | $(AS) -o $(<F).bin.o
+	@fbx2bin -filepath=$< -outdir=$(dir $<)$(BUILD) -o=$(notdir $<).bin
+	@bin2s -a 4 -H `(echo $(<F).bin | tr . _)`.h $(dir $<)$(BUILD)/$(<F).bin | $(AS) -o $(<F).bin.o
 	@echo built $@
 
 #---------------------------------------------------------------------------------
