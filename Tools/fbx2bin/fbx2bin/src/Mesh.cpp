@@ -10,6 +10,11 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 {
 }
 
+bool Model::HasAnimations() const
+{
+    return m_HasAnimations;
+}
+
 void Model::loadModel(const std::string& path)
 {
     Assimp::Importer import;
@@ -23,19 +28,37 @@ void Model::loadModel(const std::string& path)
 
     directory = path.substr(0, path.find_last_of('/'));
 
-    processNode(scene->mRootNode, scene);
+    if (scene->mNumAnimations > 0)
+    {
+        m_HasAnimations = true;
+    }
+
+    processNode(scene->mRootNode, scene, 0);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+void Model::processNode(aiNode* node, const aiScene* scene, int indent)
 {
+    if (!node)
+    {
+        return;
+    }
+
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
     }
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
+
+    std::string indentString;
+    indentString.resize(indent, ' ');
+
+    //printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
+    //printMatrix(node->mTransformation, indent);
+    //std::cout << std::endl;
+    for (unsigned int child = 0; child < node->mNumChildren; child++)
     {
-        processNode(node->mChildren[i], scene);
+        processNode(node->mChildren[child], scene, indent + 4);
+        //std::cout << std::endl;
     }
 }
 
@@ -172,20 +195,5 @@ void Model::parseNodeHierarchy(const aiScene* scene)
 
 void Model::parseNode(const aiNode* Node, int indent)
 {
-    if (!Node)
-    {
-        return;
-    }
 
-    std::string indentString;
-    indentString.resize(indent, ' ');
-
-    printf("%s-- NODE %s --\n", indentString.c_str(), Node->mName.C_Str());
-    printMatrix(Node->mTransformation, indent);
-    std::cout << std::endl;
-    for (int child = 0; child < Node->mNumChildren; child++)
-    {
-        parseNode(Node->mChildren[child], indent + 4);
-        std::cout << std::endl;
-    }
 }

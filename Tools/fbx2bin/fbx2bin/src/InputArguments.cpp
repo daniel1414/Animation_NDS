@@ -26,6 +26,8 @@ InputArguments::InputArguments(int argc, char** argv)
         {
             int index = filename.length();
             OutFileName = argument.substr(filename.length(), argument.length() - filename.length());
+            OutAnimationFile = OutFileName;
+            OutAnimationFile.insert(OutAnimationFile.find_last_of('.'), ".anim");
         }
     }
 }

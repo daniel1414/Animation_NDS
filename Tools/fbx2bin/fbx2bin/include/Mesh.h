@@ -49,12 +49,14 @@ public:
         loadModel(path);
     }
 
+    bool HasAnimations() const;
+
 private:
     std::vector<Mesh> meshes;
     std::string directory;
 
     void loadModel(const std::string& path);
-    void processNode(aiNode* node, const aiScene* scene);
+    void processNode(aiNode* node, const aiScene* scene, int indent);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
     void printBoneOffsetMatrix(aiBone* Bone);
@@ -64,6 +66,8 @@ private:
 
     // todo: textures? here?
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+
+    bool m_HasAnimations = false;
 
     friend class ModelConverter;
 };

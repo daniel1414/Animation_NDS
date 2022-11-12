@@ -2,12 +2,7 @@
 
 #include "Defines.h"
 
-uint32_t* ModelConverter::ToNintendoInstructions(uint32_t& OutSize)
-{
-    return ConvertStaticModel(OutSize);
-}
-
-uint32_t* ModelConverter::ConvertStaticModel(uint32_t& OutSize)
+uint32_t* ModelConverter::GetNintendoMeshes(uint32_t& OutSize)
 {
     // one byte for storring the length of the data
     OutSize = 1;
@@ -66,7 +61,16 @@ uint32_t* ModelConverter::ConvertStaticModel(uint32_t& OutSize)
     return Data;
 }
 
-uint32_t* ModelConverter::ConvertAnimatedModel(uint32_t& OutSize)
+uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
 {
-    return nullptr;
+    // for now
+    if (!model.HasAnimations())
+    {
+        return nullptr;
+    }
+
+    // Data layout:
+    // First there are the vertex locations
+    uint32_t* data = (uint32_t*)malloc(1);
+    return data;
 }

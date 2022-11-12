@@ -90,6 +90,7 @@ SFILES   := $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 PNGFILES := $(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.png)))
 BINFILES := $(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 FBXFILES := $(foreach dir,$(FBX),$(notdir $(wildcard $(dir)/*.fbx)))
+FBXBINFILES := $(foreach dir,$(FBXBUILD),$(notdir $(wildcard $(dir)/*.bin)))
 
 # prepare NitroFS directory
 ifneq ($(strip $(NITRO)),)
@@ -125,12 +126,11 @@ else
 endif
 #---------------------------------------------------------------------------------
 
-export FBXBINFILES := $(addsuffix .bin,$(FBXFILES))
-
 export OFILES   := $(addsuffix .o,$(BINFILES))\
                    $(addsuffix .o,$(FBXBINFILES))\
                    $(PNGFILES:.png=.o)\
                    $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
+
 export INCLUDE  := $(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir))\
                    $(foreach dir,$(LIBDIRS),-I$(dir)/include)\
                    -I$(CURDIR)/$(BUILD)
@@ -160,7 +160,6 @@ endif
 $(BUILD):
 	@mkdir -p $@
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
@@ -186,21 +185,23 @@ $(SOUNDBANK) : $(MODFILES)
 	mmutil $^ -d -o$@ -hsoundbank.h
 
 #---------------------------------------------------------------------------------
-%.bin.o: %.bin
+# rule to create fbx.bin.o files out of .fbx.bin files
 #---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	$(bin2o)
+%.fbx.bin.o: $(FBXBUILD)/%.fbx.bin
+#---------------------------------------------------------------------------------
+	bin2s -a 4 -H `(echo $(<F) | tr . _)`.h $(abspath $<) | $(AS) -o $(<F).o
 
 #---------------------------------------------------------------------------------
-# rule to create .bin files out of .fbx files
+%.fbx.anim.bin.o: $(FBXBUILD)/%.fbx.anim.bin
 #---------------------------------------------------------------------------------
-%.fbx.bin.o: %.fbx
+	bin2s -a 4 -H `(echo $(<F) | tr . _)`.h $(abspath $<) | $(AS) -o $(<F).o
+
 #---------------------------------------------------------------------------------
-	@mkdir -p $(dir $<)$(BUILD)
-	@echo converting $(notdir $<)...
-	@fbx2bin -filepath=$< -outdir=$(dir $<)$(BUILD) -o=$(notdir $<).bin
-	@bin2s -a 4 -H `(echo $(<F).bin | tr . _)`.h $(dir $<)$(BUILD)/$(<F).bin | $(AS) -o $(<F).bin.o
-	@echo built $@
+%.bin.o: %.bin
+#---------------------------------------------------------------------------------
+	@echo $(OFILES)
+	@echo $(notdir $<)
+	$(bin2o)
 
 #---------------------------------------------------------------------------------
 # This rule creates assembly source files using grit

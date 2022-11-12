@@ -47,6 +47,7 @@ int main(int argc, char** argv)
 		inputArguments.SourceFilePath = "BoxAnim.fbx";
 		inputArguments.OutDirectory = "build";
 		inputArguments.OutFileName = "BoxAnim.fbx.bin";
+		inputArguments.OutAnimationFile = "BoxAnim.fbx.anim.bin";
 	}
 
     if (!inputArguments.IsValid())
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
 	Model model(inputArguments.SourceFilePath);
 
     FILE* file;
-    std::string OutFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutFileName;
+    const std::string OutFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutFileName;
     fopen_s(&file, OutFilePath.c_str(), "wb");
 	if (file == nullptr)
 	{
@@ -69,15 +70,28 @@ int main(int argc, char** argv)
 	ModelConverter mc(model);
 
 	uint32_t size = 0;
-	uint32_t* data = mc.ToNintendoInstructions(size);
+	uint32_t* data = mc.GetNintendoMeshes(size);
 
 	//drawTriangle(file);
-	
 	fwrite(data, sizeof(uint32_t), size, file);
-
 	free(data);
-
 	fclose(file);
 
-    return 0;
+	data = mc.GetAnimationData(size);
+	if (data)
+	{
+		const std::string AnimationFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutAnimationFile;
+		fopen_s(&file, AnimationFilePath.c_str(), "wb");
+		if (file == nullptr)
+		{
+			std::cout << "faied to open file " << AnimationFilePath << std::endl;
+			return -1;
+		}
+
+		fwrite(data, sizeof(uint32_t), size, file);
+		free(data);
+		fclose(file);
+	}
+
+	return 0;
 }
