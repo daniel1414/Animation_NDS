@@ -158,8 +158,8 @@ int main(void) {
 		//glTranslate3f32(inttof32(0), inttof32(2), inttof32(-3));
 		//Renderer::drawModel(BoxAnim_fbx_bin);
 
-		//AnimatedModel BoxModel(BoxAnim_fbx_bin, BoxAnim_fbx_bin_size, BoxAnim_fbx_anim_bin, BoxAnim_fbx_anim_bin_size);
-		AnimatedModel BoxModel(Fox_fbx_bin, Fox_fbx_bin_size, Fox_fbx_anim_bin, Fox_fbx_anim_bin_size);
+		AnimatedModel BoxModel(BoxAnim_fbx_bin, BoxAnim_fbx_bin_size, BoxAnim_fbx_anim_bin, BoxAnim_fbx_anim_bin_size);
+		//AnimatedModel BoxModel(Fox_fbx_bin, Fox_fbx_bin_size, Fox_fbx_anim_bin, Fox_fbx_anim_bin_size);
 		BoxModel.Draw(0.0f);
 		//glPopMatrix(1);
 

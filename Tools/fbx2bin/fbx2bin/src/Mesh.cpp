@@ -75,8 +75,8 @@ void Model::processNode(aiNode* node, const aiScene* scene, int indent)
     std::string indentString;
     indentString.resize(indent, ' ');
 
-    //printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
-    //printMatrix(node->mTransformation, indent);
+    printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
+    printMatrix(node->mTransformation, indent);
     std::cout << std::endl;
     for (unsigned int child = 0; child < node->mNumChildren; child++)
     {
@@ -224,8 +224,8 @@ void Model::ReadNodeHierarchy(const aiNode* pNode, const aiMatrix4x4& ParentTran
     {
         uint32_t BoneIndex = m_BoneNameToIndex[NodeName];
         m_BoneInfo[BoneIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[BoneIndex].OffsetMatrix;
-        printf("Bone %s\n", NodeName.c_str());
-        printMatrix(m_BoneInfo[BoneIndex].FinalTransformation, 4);
+        //printf("Bone %s\n", NodeName.c_str());
+        //printMatrix(m_BoneInfo[BoneIndex].FinalTransformation, 4);
     }
 
     for (uint32_t i = 0; i < pNode->mNumChildren; i++)
