@@ -31,6 +31,11 @@ typedef short int vn10;       /*!< \brief normal .10 fixed point, NOT USED FOR 1
 #define floattovn10(n)        ((n>.998) ? 0x1FF : ((vn10)((n)*(1<<9)))) /*!< \brief convert float to v10 */
 #define NORMAL_PACK(x,y,z)    (uint32_t)(((x) & 0x3FF) | (((y) & 0x3FF) << 10) | ((z) << 20)) /*!< \brief Pack 3 vn10 normals into a 32bit value */
 
+#define inttof32(n)          ((n) * (1 << 12)) /*!< \brief convert int to f32 */
+#define f32toint(n)          ((n) / (1 << 12)) /*!< \brief convert f32 to int */
+#define floattof32(n)        ((int)((n) * (1 << 12))) /*!< \brief convert float to f32 */
+#define f32tofloat(n)        (((float)(n)) / (float)(1<<12)) /*!< \brief convert f32 to float */
+
 typedef enum {
     GL_TRIANGLES = 0, /*!< draw triangles with each 3 vertices defining a triangle */
     GL_QUADS = 1, /*!< draw quads with each 4 vertices defining a quad */

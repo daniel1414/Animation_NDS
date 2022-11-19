@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
@@ -44,12 +45,11 @@ private:
 class Model
 {
 public:
-    Model(const std::string& path)
-    {
-        loadModel(path);
-    }
+    Model(const std::string& path);
 
     bool HasAnimations() const;
+
+    void GetBoneTransforms(std::vector<aiMatrix4x4>& Transforms);
 
 private:
     std::vector<Mesh> meshes;
@@ -61,13 +61,26 @@ private:
 
     void printBoneOffsetMatrix(aiBone* Bone);
     void printMatrix(const aiMatrix4x4& m, int indent);
-    void parseNodeHierarchy(const aiScene* scene);
-    void parseNode(const aiNode* Node, int indent);
+    void ReadNodeHierarchy(const aiNode* pNode, const aiMatrix4x4& ParentTransform);
 
     // todo: textures? here?
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
     bool m_HasAnimations = false;
+    std::map<std::string, uint32_t> m_BoneNameToIndex;
+
+    Assimp::Importer m_importer;
+
+    struct BoneInfo
+    {
+        aiMatrix4x4 OffsetMatrix;
+        aiMatrix4x4 FinalTransformation;
+        BoneInfo(const aiMatrix4x4& Offset)
+        {
+            OffsetMatrix = Offset;
+        }
+    };
+    std::vector<BoneInfo> m_BoneInfo;
 
     friend class ModelConverter;
 };

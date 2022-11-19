@@ -77,7 +77,8 @@ int main(int argc, char** argv)
 	free(data);
 	fclose(file);
 
-	data = mc.GetAnimationData(size);
+	uint32_t animationDataSize = 0;
+	data = mc.GetAnimationData(animationDataSize);
 	if (data)
 	{
 		const std::string AnimationFilePath = inputArguments.OutDirectory + "/" + inputArguments.OutAnimationFile;
@@ -88,8 +89,8 @@ int main(int argc, char** argv)
 			return -1;
 		}
 
-		fwrite(data, sizeof(uint32_t), size, file);
-		free(data);
+		fwrite(data, sizeof(uint8_t), animationDataSize, file);
+		// free(data);
 		fclose(file);
 	}
 

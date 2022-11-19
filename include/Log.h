@@ -88,6 +88,19 @@ public:
 
         nocashMessage(ss.str().c_str());
     }
+
+    // TODO: Wrap in a macro for easy off switch!
+    static void LogMatrix4x4(const m4x4& matrix)
+    {
+        std::ostringstream ss;
+
+        ss << "[ " << matrix.m[0] << " " << matrix.m[1] << " " << matrix.m[2] << " " << matrix.m[3] << "]\n";
+        ss << "[ " << matrix.m[4] << " " << matrix.m[5] << " " << matrix.m[6] << " " << matrix.m[7] << "]\n";
+        ss << "[ " << matrix.m[8] << " " << matrix.m[9] << " " << matrix.m[10] << " " << matrix.m[11] << "]\n";
+        ss << "[ " << matrix.m[12] << " " << matrix.m[13] << " " << matrix.m[14] << " " << matrix.m[15] << "]";
+
+        nocashMessage(ss.str().c_str());
+    }
 };
 
 #endif /* _LOG_H_ */

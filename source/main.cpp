@@ -4,35 +4,34 @@
 #include <nds/arm9/console.h>
 #include <nds/arm9/boxtest.h>
 
-#include "grass_side.h"
 #include "texture_classic.h"
-#include "center_cross.h"
 
 #include "BoxAnim_fbx_bin.h"
+#include "BoxAnim_fbx_anim_bin.h"
 #include "BoxAnimTexture.h"
 
 //#include "Monkey_fbx_bin.h"
 //#include "Monkey.h"
 
-//#include "Fox_fbx_bin.h"
-//#include "FoxTexture.h"
+#include "Fox_fbx_bin.h"
+#include "Fox_fbx_anim_bin.h"
+#include "FoxTexture.h"
 
 #include "Log.h"
 #include "Renderer.h"
 #include "Texture.h"
 #include "Sprite.h"
 #include "Camera.h"
+#include "AnimatedModel.h"
 
 Camera* mainCamera = nullptr;
 
 // culling - CCW are front
-int grass_texture;
-
 bool cullFrustum = true;
 
 void drawTriangle()
 {
-	uint16_t color = RGB15(0, 31, 0);
+	//uint16_t color = RGB15(0, 31, 0);
 
 	uint32_t* fifoData = (uint32_t*)malloc(18 * sizeof(uint32_t));
 	fifoData[0] = 17; // length of command list
@@ -107,8 +106,22 @@ int main(void) {
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
-	//SpriteAttributes centerCrossAttr = {"centerCross", 256 / 2, 192 / 2, (void*)center_crossTiles, center_crossTilesLen, (void*)center_crossPal, center_crossPalLen, SpriteSize_16x16};
-	//Sprite* center_cross = Sprite::create(centerCrossAttr);
+	Mat4x4 matrixA;
+	Mat4x4 matrixB;
+
+	Vec4 vec;
+	vec.x = inttof32(1);
+	vec.z = inttof32(2);
+	vec.w = inttof32(1);
+
+	vec = matrixA * vec;
+
+	Mat4x4 matrixC = matrixA * inttof32(2);
+
+	Logger::LogMatrix4x4(*(m4x4*)&matrixA);
+	Logger::LogMatrix4x4(*(m4x4*)&matrixB);
+	Logger::LogMatrix4x4(*(m4x4*)&matrixC);
+	LOG("\n[%d %d %d %d]", vec.x, vec.y, vec.z, vec.w);
 
 	while(1) {
 
@@ -143,7 +156,11 @@ int main(void) {
 		//glMatrixMode(GL_MODELVIEW);
 		//glPushMatrix();
 		//glTranslate3f32(inttof32(0), inttof32(2), inttof32(-3));
-		Renderer::drawModel(BoxAnim_fbx_bin);
+		//Renderer::drawModel(BoxAnim_fbx_bin);
+
+		//AnimatedModel BoxModel(BoxAnim_fbx_bin, BoxAnim_fbx_bin_size, BoxAnim_fbx_anim_bin, BoxAnim_fbx_anim_bin_size);
+		AnimatedModel BoxModel(Fox_fbx_bin, Fox_fbx_bin_size, Fox_fbx_anim_bin, Fox_fbx_anim_bin_size);
+		BoxModel.Draw(0.0f);
 		//glPopMatrix(1);
 
 		Texture::Bind(0);
@@ -155,8 +172,6 @@ int main(void) {
 		Renderer::drawQuad({inttof32(-5), inttof32(-2), inttof32(-5)}, {inttof32(10), 0, inttof32(10)}, {0, 1, 0}, RGB15(28, 3, 3));
 
 		Renderer::endScene();
-
-		//Sprite::updateAll();
 
 		swiWaitForVBlank();
 	}

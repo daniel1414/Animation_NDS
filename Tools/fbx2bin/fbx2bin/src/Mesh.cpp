@@ -10,19 +10,34 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 {
 }
 
+Model::Model(const std::string& path)
+{
+    loadModel(path);
+}
+
 bool Model::HasAnimations() const
 {
     return m_HasAnimations;
 }
 
+void Model::GetBoneTransforms(std::vector<aiMatrix4x4>& Transforms)
+{
+    Transforms.clear();
+    Transforms.reserve(m_BoneInfo.size());
+
+    for (const BoneInfo& Bone : m_BoneInfo)
+    {
+        Transforms.push_back(Bone.FinalTransformation);
+    }
+}
+
 void Model::loadModel(const std::string& path)
 {
-    Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = m_importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+        std::cout << "ERROR::ASSIMP::" << m_importer.GetErrorString() << std::endl;
         return;
     }
 
@@ -34,6 +49,14 @@ void Model::loadModel(const std::string& path)
     }
 
     processNode(scene->mRootNode, scene, 0);
+
+    aiMatrix4x4 Matrix;
+    if (!Matrix.IsIdentity())
+    {
+        std::cout << "dupa" << std::endl;
+    }
+
+    ReadNodeHierarchy(scene->mRootNode, Matrix);
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene, int indent)
@@ -54,11 +77,11 @@ void Model::processNode(aiNode* node, const aiScene* scene, int indent)
 
     //printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
     //printMatrix(node->mTransformation, indent);
-    //std::cout << std::endl;
+    std::cout << std::endl;
     for (unsigned int child = 0; child < node->mNumChildren; child++)
     {
         processNode(node->mChildren[child], scene, indent + 4);
-        //std::cout << std::endl;
+        std::cout << std::endl;
     }
 }
 
@@ -118,6 +141,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     for (unsigned int BoneID = 0; BoneID < mesh->mNumBones; BoneID++)
     {
         aiBone* Bone = mesh->mBones[BoneID];
+
+        m_BoneNameToIndex[Bone->mName.C_Str()] = BoneID;
+        m_BoneInfo.push_back(Bone->mOffsetMatrix);
 
         //printBoneOffsetMatrix(Bone);
 
@@ -188,12 +214,22 @@ void Model::printMatrix(const aiMatrix4x4& m, int indent)
     printf("%s%.4f %.4f %.4f %.4f\n", indentString.c_str(), m.d1, m.d2, m.d3, m.d4);
 }
 
-void Model::parseNodeHierarchy(const aiScene* scene)
+void Model::ReadNodeHierarchy(const aiNode* pNode, const aiMatrix4x4& ParentTransform)
 {
-    parseNode(scene->mRootNode, 0);
-}
+    std::string NodeName = pNode->mName.C_Str();
+    aiMatrix4x4 NodeTransformation = pNode->mTransformation;
+    aiMatrix4x4 GlobalTransformation = ParentTransform * NodeTransformation;
 
-void Model::parseNode(const aiNode* Node, int indent)
-{
+    if (m_BoneNameToIndex.find(NodeName) != m_BoneNameToIndex.end())
+    {
+        uint32_t BoneIndex = m_BoneNameToIndex[NodeName];
+        m_BoneInfo[BoneIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[BoneIndex].OffsetMatrix;
+        printf("Bone %s\n", NodeName.c_str());
+        printMatrix(m_BoneInfo[BoneIndex].FinalTransformation, 4);
+    }
 
+    for (uint32_t i = 0; i < pNode->mNumChildren; i++)
+    {
+        ReadNodeHierarchy(pNode->mChildren[i], GlobalTransformation);
+    }
 }

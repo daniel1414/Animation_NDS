@@ -36,6 +36,7 @@ public:
     
     // TODO: add position, rotation and scale parameters
     static void drawModel(const void* model);
+
 private:
     static void setTranslation(const Vec3& translation);
     static void setScale(const Vec3& scale);
