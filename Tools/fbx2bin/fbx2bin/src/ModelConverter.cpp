@@ -79,7 +79,7 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
 
     // get the bone data
     std::vector<aiMatrix4x4> BoneTransforms;
-    model.GetBoneTransforms(BoneTransforms);
+    model.GetBoneTransforms(1.1f, BoneTransforms);
 
     // Data layout:
     // First there are the vertex locations
@@ -141,6 +141,8 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
     }
 
     memcpy(&data[HeaderCount + (VertexDataSize / 4)], m_BoneInfos.data(), BoneDataSize);
+
+    // Fill the animation data
 
     return data;
 }

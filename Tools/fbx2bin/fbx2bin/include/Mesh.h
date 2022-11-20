@@ -49,7 +49,7 @@ public:
 
     bool HasAnimations() const;
 
-    void GetBoneTransforms(std::vector<aiMatrix4x4>& Transforms);
+    void GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Transforms);
 
 private:
     std::vector<Mesh> meshes;
@@ -61,7 +61,15 @@ private:
 
     void printBoneOffsetMatrix(aiBone* Bone);
     void printMatrix(const aiMatrix4x4& m, int indent);
-    void ReadNodeHierarchy(const aiNode* pNode, const aiMatrix4x4& ParentTransform);
+    void ReadNodeHierarchy(const float TimeInTicks, const aiNode* pNode, const aiMatrix4x4& ParentTransform);
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const std::string& NodeName);
+
+    uint32_t FindScaling(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
+    uint32_t FindRotation(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
+    uint32_t FindTranslation(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedTranslation(aiVector3D& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim);
 
     // todo: textures? here?
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
@@ -70,7 +78,7 @@ private:
     std::map<std::string, uint32_t> m_BoneNameToIndex;
 
     Assimp::Importer m_importer;
-
+    const aiScene* m_scene;
     struct BoneInfo
     {
         aiMatrix4x4 OffsetMatrix;
@@ -81,6 +89,8 @@ private:
         }
     };
     std::vector<BoneInfo> m_BoneInfo;
+
+    aiMatrix4x4 m_GlobalInverseTransform;
 
     friend class ModelConverter;
 };
