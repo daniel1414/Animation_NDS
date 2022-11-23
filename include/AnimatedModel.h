@@ -6,12 +6,14 @@
 
 #include "Math.h"
 
-/* Enum that holds information about sections of information in AnimDataPtr */
-enum EAnimationInfoPosition
+
+struct AnimationInfoHeader
 {
-    VertexDataPosition = 0,
-    BoneDataPosition = 1,
-    AnimationDataPosition = 2
+    uint32_t VertexDataPosition;
+    uint32_t BoneCount;
+    uint32_t BoneDataPosition;
+    uint32_t AnimationTicksPerSecond;
+    uint32_t AnimationTicks;
 };
 
 struct VertexInfo
@@ -25,11 +27,6 @@ struct VertexInfo
 struct BoneInfo
 {
     Mat4x4 FinalTransform;
-};
-
-struct AnimationData
-{
-
 };
 
 class AnimatedModel

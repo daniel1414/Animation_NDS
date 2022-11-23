@@ -87,6 +87,14 @@ struct Mat3
 {
 	int32 values[9];
 
+	void Identity()
+	{
+		memset(values, 0, sizeof(int32) * 9);
+		values[0] = inttof32(1);
+		values[4] = inttof32(1);
+		values[8] = inttof32(1);
+	}
+
 	Vec3 operator*(const Vec3& other)
 	{
 		Vec3 result;
@@ -102,6 +110,11 @@ struct Mat4x4
 	int32 values[16];
 
 	Mat4x4()
+	{
+		Identity();
+	}
+
+	void Identity()
 	{
 		memset(values, 0, 16 * sizeof(int32));
 		values[0]  = inttof32(1);

@@ -1,3 +1,5 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(499,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  ModelConverter.cpp
+  Mesh.cpp
+D:\Private\Nintendo\devkitPro\Projects\Animation\Tools\fbx2bin\fbx2bin\src\Mesh.cpp(33,29): warning C4018: '<': signed/unsigned mismatch
+D:\Private\Nintendo\devkitPro\Projects\Animation\Tools\fbx2bin\fbx2bin\src\Mesh.cpp(36,27): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
   fbx2bin.vcxproj -> D:\Private\Nintendo\devkitPro\tools\bin\fbx2bin.exe

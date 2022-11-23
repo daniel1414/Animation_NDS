@@ -4,11 +4,11 @@
 #include "Log.h"
 
 typedef short int vx10;        /*!< \brief vertex 4.6 fixed point, USED FOR 10bit VERTICES!!! MAX 7.984375, MIN -8.0*/
-#define inttovx10(n)          ((n) << 6) /*!< \brief convert int to vx10 */
-#define f32tovx10(n)          ((n) >> 6) /*!< \brief f32 to vx10 */
-#define vx10toint(n)          ((n) >> 6) /*!< \brief convert vx10 to int */
-#define vx10tof32(n)          ((n) << 6) /*!< \brief convert vx10 to f32 */
-#define vx10tofloat(n)        ((n) / (float)(1 << 6)) /*!< \brief convert vx10 to float */
+#define inttovx10(n)          ((n) * (1 << 6)) /*!< \brief convert int to vx10 */
+#define vx10toint(n)          ((n) / (1 << 6)) /*!< \brief convert vx10 to int */
+#define f32tovx10(n)          ((vx10)(n >> 6)) /*!< \brief f32 to vx10 */
+#define vx10tof32(n)          ((((int32)n) & (1 << 9) ? (((0xFFFFFC00 | (int32)n ) << 6) & 0x2F) : (((int32)n) << 6))) /*!< \brief convert vx10 to f32 */
+#define vx10tofloat(n)        ((float)(n) / (float)(1 << 6)) /*!< \brief convert vx10 to float */
 #define floattovx10(n)        ((vx10)((n) * (1 << 6))) /*!< \brief convert float to vx10 */
 #define VERTEXX10_PACK(x,y,z) (uint32_t)(((x) & 0x3FF) | ((y & 0x3FF) << 10) | ((z & 0x3FF) << 20)) /*!< \brief Pack to v16 values into one 32bit value */
 
@@ -23,24 +23,22 @@ void AnimatedModel::Draw(const float Time)
     uint32_t* modelData = (uint32_t*)malloc(modelSize);
     memcpy(modelData, modelPtr, modelSize);
 
-    // Get the animation time (for now leave at 0.0)
-
-    // Get the bone transforms that relate to the time
-
-    // Multiply the vertex coodrinated by the bone matrices
-
-    //const VertexInfo* AnimData = reinterpret_cast<const VertexInfo*>(animDataPtr);
     const uint32_t* AnimData = reinterpret_cast<const uint32_t*>(animDataPtr);
+    const AnimationInfoHeader* Header = reinterpret_cast<const AnimationInfoHeader*>(animDataPtr);
+
+    const uint32_t CurrentAnimationTick = static_cast<uint32_t>(Time * Header->AnimationTicksPerSecond) % Header->AnimationTicks;
 
     // Offset in words
-    const uint32_t VertexDataOffset = (static_cast<const uint32_t*>(animDataPtr))[VertexDataPosition];
-    const uint32_t BoneDataOffset = (static_cast<const uint32_t*>(animDataPtr))[BoneDataPosition];
+    const uint32_t VertexDataOffset = Header->VertexDataPosition;
+    const uint32_t BoneDataOffset = Header->BoneDataPosition;
 
     const uint32_t VertexInfoCount = (BoneDataOffset - VertexDataOffset) * 4 / sizeof(VertexInfo);
     const uint32_t BoneInfoCount = (animDataSize / 4 - BoneDataOffset) * 4 / sizeof(BoneInfo);
 
     const VertexInfo* VertexInfoBegin = reinterpret_cast<const VertexInfo*>(&AnimData[VertexDataOffset]);
-    const BoneInfo* BoneInfoBegin = reinterpret_cast<const BoneInfo*>(&AnimData[BoneDataOffset]);
+
+    // Move the bone begin ptr to the current animation tick
+    const BoneInfo* BoneInfoBegin = reinterpret_cast<const BoneInfo*>(&AnimData[BoneDataOffset]) + CurrentAnimationTick * Header->BoneCount;
 
     // Multiply the vertex position by the final Bone transform
     for(uint32_t VertexInfoID = 0; VertexInfoID < VertexInfoCount; VertexInfoID++)
@@ -50,7 +48,7 @@ void AnimatedModel::Draw(const float Time)
 
         // Multiply the vertex position by the weighted average of the bone transforms
         Mat4x4 FinalVertexTransformation;
-        for(uint32_t i = 0; i < 4; i++)
+        for(uint32_t i = 0; i < 4 && i < Header->BoneCount; i++)
         {
             const BoneInfo& boneInfo = BoneInfoBegin[vertexInfo.BoneID[i]];
             // Bone weight in f32 already
@@ -60,14 +58,34 @@ void AnimatedModel::Draw(const float Time)
             }
         }
 
+        LOG("\nCalculating vertex in tick %d", CurrentAnimationTick);
+        LOG("FinalVertexTransformation", 0);
+        //Logger::LogMatrix4x4(*(m4x4*)&FinalVertexTransformation);
+
+        vx10 x = (VertexPosition & 0x3FF);
+        vx10 y = ((VertexPosition >> 10) & 0x3FF);
+        vx10 z = ((VertexPosition >> 20) & 0x3FF);
+
+        if(x & (1 << 9))
+            x |= 0xFC00;
+        if(y & (1 << 9))
+            y |= 0xFC00;
+        if(z & (1 << 9))
+            z |= 0xFC00;
+
         Vec4 VertexPositionf32;
-        VertexPositionf32.x = vx10tof32(VertexPosition & 0x3FF);
-        VertexPositionf32.y = vx10tof32((VertexPosition >> 10) & 0x3FF);
-        VertexPositionf32.z = vx10tof32((VertexPosition >> 20) & 0x3FF);
+        VertexPositionf32.x = floattof32(vx10tofloat(x));
+        VertexPositionf32.y = floattof32(vx10tofloat(y));
+        VertexPositionf32.z = floattof32(vx10tofloat(z));
         VertexPositionf32.w = inttof32(1);
 
+        LOG("Vertex (%d,%f,%f)", x, vx10tofloat(y), vx10tofloat(z));
         Vec4 FinalVertexPositionf32 = FinalVertexTransformation * VertexPositionf32;
+        LOG("Final Vertex Position original hex (%x,%x,%x)", (VertexPosition & 0x3FF), ((VertexPosition >> 10) & 0x3FF), ((VertexPosition >> 20) & 0x3FF));
+        LOG("Final Vertex Position f32 (%d,%d,%d)", VertexPositionf32.x, VertexPositionf32.y, VertexPositionf32.z);
+        LOG("Final Vertex Position int (%d,%d,%d)", f32tovx10(FinalVertexPositionf32.x), f32tovx10(FinalVertexPositionf32.y), f32tovx10(FinalVertexPositionf32.z));
         VertexPosition = VERTEXX10_PACK(f32tovx10(FinalVertexPositionf32.x), f32tovx10(FinalVertexPositionf32.y), f32tovx10(FinalVertexPositionf32.z));
+        //VertexPosition = VERTEXX10_PACK(f32tovx10(Positionf32.x), f32tovx10(Positionf32.y), f32tovx10(Positionf32.z));
     }
 
     //LogAnimationData();
@@ -79,16 +97,26 @@ void AnimatedModel::Draw(const float Time)
 void AnimatedModel::LogAnimationData() const
 {
     const uint32_t* AnimData = reinterpret_cast<const uint32_t*>(animDataPtr);
-
+    const AnimationInfoHeader* Header = reinterpret_cast<const AnimationInfoHeader*>(animDataPtr);
+    
     LOG("\n -- General Model Info --\n", 0);
 
     // Offset in words
-    const uint32_t VertexDataOffset = (static_cast<const uint32_t*>(animDataPtr))[VertexDataPosition];
+    const uint32_t VertexDataOffset = Header->VertexDataPosition;
     LOG("VertexDataOffset: %d", VertexDataOffset);
 
     // Offset in words
-    const uint32_t BoneDataOffset = (static_cast<const uint32_t*>(animDataPtr))[BoneDataPosition];
+    const uint32_t BoneDataOffset = Header->BoneDataPosition;
     LOG("BoneDataOffset: %d", BoneDataOffset);
+
+    const uint32_t BoneCount = Header->BoneCount;
+    LOG("BoneCount: %d", BoneCount);
+
+    const uint32_t AnimationTicksPerSecond = Header->AnimationTicksPerSecond;
+    LOG("AnimationTicksPerSecond: %d", AnimationTicksPerSecond);
+
+    const uint32_t AnimationTicks = Header->AnimationTicks;
+    LOG("AnimationTicks: %d", AnimationTicks);
     
     const uint32_t VertexInfoCount = (BoneDataOffset - VertexDataOffset) * 4 / sizeof(VertexInfo);
     LOG("VertexInfoCount: %d", VertexInfoCount);

@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <sstream>
 
-#define LOG_ENABLED 1
+#define LOG_ENABLED 0
 #if LOG_ENABLED
 #define LOG(message, ...) Logger::Log(message, __VA_ARGS__)
 #else
@@ -38,6 +38,12 @@ public:
                     case 'i':
                     {
                         int i = va_arg(args, int);
+                        ss << i;
+                        break;
+                    }
+                    case 'l':
+                    {
+                        long int i = va_arg(args, long int);
                         ss << i;
                         break;
                     }
@@ -94,10 +100,10 @@ public:
     {
         std::ostringstream ss;
 
-        ss << "[ " << matrix.m[0] << " " << matrix.m[1] << " " << matrix.m[2] << " " << matrix.m[3] << "]\n";
-        ss << "[ " << matrix.m[4] << " " << matrix.m[5] << " " << matrix.m[6] << " " << matrix.m[7] << "]\n";
-        ss << "[ " << matrix.m[8] << " " << matrix.m[9] << " " << matrix.m[10] << " " << matrix.m[11] << "]\n";
-        ss << "[ " << matrix.m[12] << " " << matrix.m[13] << " " << matrix.m[14] << " " << matrix.m[15] << "]";
+        ss << "[ " << f32tofloat(matrix.m[0]) << " " << f32tofloat(matrix.m[1]) << " " << f32tofloat(matrix.m[2]) << " " << f32tofloat(matrix.m[3]) << "]\n";
+        ss << "[ " << f32tofloat(matrix.m[4]) << " " << f32tofloat(matrix.m[5]) << " " << f32tofloat(matrix.m[6]) << " " << f32tofloat(matrix.m[7]) << "]\n";
+        ss << "[ " << f32tofloat(matrix.m[8]) << " " << f32tofloat(matrix.m[9]) << " " << f32tofloat(matrix.m[10]) << " " << f32tofloat(matrix.m[11]) << "]\n";
+        ss << "[ " << f32tofloat(matrix.m[12]) << " " << f32tofloat(matrix.m[13]) << " " << f32tofloat(matrix.m[14]) << " " << f32tofloat(matrix.m[15]) << "]";
 
         nocashMessage(ss.str().c_str());
     }

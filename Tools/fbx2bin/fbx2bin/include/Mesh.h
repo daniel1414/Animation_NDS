@@ -49,7 +49,7 @@ public:
 
     bool HasAnimations() const;
 
-    void GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Transforms);
+    void GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Transforms, uint32_t& NumBones, uint32_t& TicksPerSecond, uint32_t& AnimationTicks);
 
 private:
     std::vector<Mesh> meshes;

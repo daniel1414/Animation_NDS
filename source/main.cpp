@@ -106,23 +106,30 @@ int main(void) {
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
-	Mat4x4 matrixA;
-	Mat4x4 matrixB;
+	Mat4x4 FinalVertexTransformation;
 
-	Vec4 vec;
-	vec.x = inttof32(1);
-	vec.z = inttof32(2);
-	vec.w = inttof32(1);
+	int angle = degreesToAngle(90);
 
-	vec = matrixA * vec;
+	FinalVertexTransformation.Identity();
+	// Rotation around Y
+	FinalVertexTransformation.values[0] = cosLerp(angle);
+	FinalVertexTransformation.values[2] = sinLerp(angle);
+	FinalVertexTransformation.values[8] = -sinLerp(angle);
+	FinalVertexTransformation.values[10] = cosLerp(angle);
 
-	Mat4x4 matrixC = matrixA * inttof32(2);
+	Vec4 VertexPositionf32;
+	VertexPositionf32.x = floattof32(-1.0f);
+	VertexPositionf32.y = floattof32(-10.0f);
+	VertexPositionf32.z = floattof32(5.0f);
+	VertexPositionf32.w = inttof32(1);
 
-	Logger::LogMatrix4x4(*(m4x4*)&matrixA);
-	Logger::LogMatrix4x4(*(m4x4*)&matrixB);
-	Logger::LogMatrix4x4(*(m4x4*)&matrixC);
-	LOG("\n[%d %d %d %d]", vec.x, vec.y, vec.z, vec.w);
+	VertexPositionf32 = FinalVertexTransformation * VertexPositionf32;
 
+	Logger::LogMatrix4x4(*(m4x4*)&FinalVertexTransformation);
+	LOG("", 0);
+	LOG("\n[%f %f %f %f]", f32tofloat(VertexPositionf32.x), f32tofloat(VertexPositionf32.y), f32tofloat(VertexPositionf32.z), f32tofloat(VertexPositionf32.w));
+
+	float Time = 0.0f;
 	while(1) {
 
 		// clear the depth buffer
@@ -160,7 +167,7 @@ int main(void) {
 
 		AnimatedModel BoxModel(BoxAnim_fbx_bin, BoxAnim_fbx_bin_size, BoxAnim_fbx_anim_bin, BoxAnim_fbx_anim_bin_size);
 		//AnimatedModel BoxModel(Fox_fbx_bin, Fox_fbx_bin_size, Fox_fbx_anim_bin, Fox_fbx_anim_bin_size);
-		BoxModel.Draw(0.0f);
+		BoxModel.Draw(Time);
 		//glPopMatrix(1);
 
 		Texture::Bind(0);
@@ -172,6 +179,8 @@ int main(void) {
 		Renderer::drawQuad({inttof32(-5), inttof32(-2), inttof32(-5)}, {inttof32(10), 0, inttof32(10)}, {0, 1, 0}, RGB15(28, 3, 3));
 
 		Renderer::endScene();
+
+		Time += 0.01f;
 
 		swiWaitForVBlank();
 	}

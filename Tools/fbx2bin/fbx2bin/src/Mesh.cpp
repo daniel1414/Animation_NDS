@@ -20,23 +20,28 @@ bool Model::HasAnimations() const
     return m_HasAnimations;
 }
 
-void Model::GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Transforms)
+void Model::GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Transforms, uint32_t& NumBones, uint32_t& TicksPerSecond, uint32_t& AnimationTicks)
 {
-    aiMatrix4x4 Matrix;
-
-    const float TicksPerSecond = static_cast<float>(m_scene->mAnimations[0]->mTicksPerSecond != 0.0f ? m_scene->mAnimations[0]->mTicksPerSecond : 30.0f);
+    TicksPerSecond = static_cast<uint32_t>(m_scene->mAnimations[0]->mTicksPerSecond != 0.0f ? m_scene->mAnimations[0]->mTicksPerSecond : 30);
+    AnimationTicks = static_cast<uint32_t>(m_scene->mAnimations[0]->mDuration);
     const float TimeInTicks = TimeS * TicksPerSecond;
-    const float AnimationTimeTicks = fmod(TimeInTicks, static_cast<float>(m_scene->mAnimations[0]->mDuration));
-
-    ReadNodeHierarchy(AnimationTimeTicks, m_scene->mRootNode, Matrix);
+    //const float AnimationTimeTicks = fmod(TimeInTicks, static_cast<float>(m_scene->mAnimations[0]->mDuration));
 
     Transforms.clear();
-    Transforms.reserve(m_BoneInfo.size());
+    Transforms.reserve(m_scene->mAnimations[0]->mNumChannels * AnimationTicks);
 
-    for (const BoneInfo& Bone : m_BoneInfo)
+    for (int tick = 0; tick < AnimationTicks; tick++)
     {
-        Transforms.push_back(Bone.FinalTransformation);
+        aiMatrix4x4 Matrix;
+        ReadNodeHierarchy(tick, m_scene->mRootNode, Matrix);
+
+        for (const BoneInfo& Bone : m_BoneInfo)
+        {
+            Transforms.push_back(Bone.FinalTransformation);
+        }
     }
+
+    NumBones = m_BoneInfo.size();
 }
 
 void Model::loadModel(const std::string& path)
@@ -78,8 +83,8 @@ void Model::processNode(aiNode* node, const aiScene* scene, int indent)
     std::string indentString;
     indentString.resize(indent, ' ');
 
-    printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
-    printMatrix(node->mTransformation, indent);
+    //printf("%s-- NODE %s --\n", indentString.c_str(), node->mName.C_Str());
+    //printMatrix(node->mTransformation, indent);
     std::cout << std::endl;
     for (unsigned int child = 0; child < node->mNumChildren; child++)
     {
@@ -244,10 +249,12 @@ void Model::ReadNodeHierarchy(const float TimeInTicks, const aiNode* pNode, cons
         TranslationM.Translation(Translation, TranslationM);
 
         NodeTransformation = TranslationM * RotationM * ScalingM;
+
+        printf("Animated node %s Tick %f\n", NodeName.c_str(), TimeInTicks);
+        printMatrix(NodeTransformation, 4);
     }
 
     aiMatrix4x4 GlobalTransformation = ParentTransform * NodeTransformation;
-
     if (m_BoneNameToIndex.find(NodeName) != m_BoneNameToIndex.end())
     {
         uint32_t BoneIndex = m_BoneNameToIndex[NodeName];

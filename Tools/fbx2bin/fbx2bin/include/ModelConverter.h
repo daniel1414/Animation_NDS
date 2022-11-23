@@ -15,6 +15,15 @@ public:
 
 private:
 
+    struct FileHeader
+    {
+        uint32_t VertexDataPosition;
+        uint32_t BoneCount;
+        uint32_t BoneDataPosition;
+        uint32_t AnimationTicksPerSecond;
+        uint32_t AnimationTicks;
+    };
+
     struct VertexInfo
     {
         uint32_t PositionOffsetInMemory;
@@ -27,7 +36,6 @@ private:
             memset(BoneWeights, 0, 4 * sizeof(uint32_t));
         }
     };
-
     std::vector<VertexInfo> m_VertexInfos;
 
     struct BoneInfo
@@ -39,6 +47,6 @@ private:
             memset(m, 0, 16 * sizeof(int32_t));
         }
     };
-
     std::vector<BoneInfo> m_BoneInfos;
+
 };

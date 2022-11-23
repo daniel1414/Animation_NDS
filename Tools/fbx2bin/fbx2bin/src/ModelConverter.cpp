@@ -77,14 +77,15 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
         return nullptr;
     }
 
+    FileHeader Header;
+    Header.VertexDataPosition = sizeof(FileHeader) / 4;
+
     // get the bone data
     std::vector<aiMatrix4x4> BoneTransforms;
-    model.GetBoneTransforms(1.1f, BoneTransforms);
+    model.GetBoneTransforms(0.0f, BoneTransforms, Header.BoneCount, Header.AnimationTicksPerSecond, Header.AnimationTicks);
 
     // Data layout:
-    // First there are the vertex locations
-    const uint32_t HeaderCount = 3;
-    const size_t HeaderSize = HeaderCount * sizeof(uint32_t);
+    const size_t HeaderSize = sizeof(FileHeader);
     OutSize = HeaderSize; // for offsets of data into the memory
 
     // for the vertex data
@@ -93,6 +94,7 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
     OutSize += VertexDataSize;
 
     // Bone Data
+    Header.BoneDataPosition = HeaderSize / 4 + VertexDataSize / 4;
     const uint32_t BoneInfoCount = BoneTransforms.size();
     const uint32_t BoneDataSize = BoneInfoCount * sizeof(BoneInfo);
     OutSize += BoneDataSize;
@@ -100,18 +102,13 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
     // allocate the buffer
     uint32_t* data = (uint32_t*)malloc(OutSize);
 
-    // Vertex data position
-    data[0] = 3;
-
-    // Bone data position
-    data[1] = HeaderCount + (VertexDataSize / 4); // offset in words
-
-    // Animation data position
-    data[2] = HeaderCount + (VertexDataSize / 4 + BoneDataSize / 4); // offset if words
+    // copy the header
+    memcpy(data, &Header, HeaderSize);
 
     // Fill in the vertex data
-    memcpy(&data[HeaderCount], m_VertexInfos.data(), VertexDataSize);
+    memcpy(&data[Header.VertexDataPosition], m_VertexInfos.data(), VertexDataSize);
 
+    // Fill in the bone data
     for (uint32_t i = 0; i < BoneTransforms.size(); i++)
     {
         const aiMatrix4x4& matrix = BoneTransforms[i];
@@ -140,9 +137,7 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
         m_BoneInfos.push_back(boneInfo);
     }
 
-    memcpy(&data[HeaderCount + (VertexDataSize / 4)], m_BoneInfos.data(), BoneDataSize);
-
-    // Fill the animation data
+    memcpy(&data[Header.BoneDataPosition], m_BoneInfos.data(), BoneDataSize);
 
     return data;
 }
