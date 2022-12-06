@@ -10,6 +10,7 @@
 struct AnimationInfoHeader
 {
     uint32_t VertexDataPosition;
+    uint32_t VertexDataSize;
     uint32_t BoneCount;
     uint32_t BoneDataPosition;
     uint32_t AnimationTicksPerSecond;
@@ -34,6 +35,7 @@ class AnimatedModel
 public:
     AnimatedModel(const void* model, const size_t modelSize, const void* animData, const size_t animDataSize);
 
+    void LogAnimationData() const;
     void Draw(const float Time);
 
 private:
@@ -42,6 +44,5 @@ private:
     const void* animDataPtr;
     const size_t animDataSize;
 
-    void LogAnimationData() const;
     void LogMatrix4x4() const;
 };

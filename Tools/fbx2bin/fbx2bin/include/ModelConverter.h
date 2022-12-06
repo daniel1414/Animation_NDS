@@ -18,6 +18,7 @@ private:
     struct FileHeader
     {
         uint32_t VertexDataPosition;
+        uint32_t VertexDataSize;
         uint32_t BoneCount;
         uint32_t BoneDataPosition;
         uint32_t AnimationTicksPerSecond;

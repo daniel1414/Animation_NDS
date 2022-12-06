@@ -48,19 +48,16 @@ void AnimatedModel::Draw(const float Time)
 
         // Multiply the vertex position by the weighted average of the bone transforms
         Mat4x4 FinalVertexTransformation;
+        FinalVertexTransformation.Zero();
         for(uint32_t i = 0; i < 4 && i < Header->BoneCount; i++)
         {
             const BoneInfo& boneInfo = BoneInfoBegin[vertexInfo.BoneID[i]];
             // Bone weight in f32 already
             if(vertexInfo.BoneWeight[i] != 0)
             {
-                FinalVertexTransformation = FinalVertexTransformation * boneInfo.FinalTransform * vertexInfo.BoneWeight[i];
+                FinalVertexTransformation = FinalVertexTransformation + boneInfo.FinalTransform * vertexInfo.BoneWeight[i];
             }
         }
-
-        LOG("\nCalculating vertex in tick %d", CurrentAnimationTick);
-        LOG("FinalVertexTransformation", 0);
-        //Logger::LogMatrix4x4(*(m4x4*)&FinalVertexTransformation);
 
         vx10 x = (VertexPosition & 0x3FF);
         vx10 y = ((VertexPosition >> 10) & 0x3FF);
@@ -79,16 +76,17 @@ void AnimatedModel::Draw(const float Time)
         VertexPositionf32.z = floattof32(vx10tofloat(z));
         VertexPositionf32.w = inttof32(1);
 
-        LOG("Vertex (%d,%f,%f)", x, vx10tofloat(y), vx10tofloat(z));
+        LOG("\nCalculating vertex %d in tick %d", VertexInfoID, CurrentAnimationTick);
+        LOG("Original Vertex Position (%f,%f,%f)", f32tofloat(VertexPositionf32.x), f32tofloat(VertexPositionf32.y), f32tofloat(VertexPositionf32.z));
+        LOG("FinalVertexTransformation", 0);
+        //Logger::LogMatrix4x4(*(m4x4*)&FinalVertexTransformation);
+
         Vec4 FinalVertexPositionf32 = FinalVertexTransformation * VertexPositionf32;
-        LOG("Final Vertex Position original hex (%x,%x,%x)", (VertexPosition & 0x3FF), ((VertexPosition >> 10) & 0x3FF), ((VertexPosition >> 20) & 0x3FF));
-        LOG("Final Vertex Position f32 (%d,%d,%d)", VertexPositionf32.x, VertexPositionf32.y, VertexPositionf32.z);
-        LOG("Final Vertex Position int (%d,%d,%d)", f32tovx10(FinalVertexPositionf32.x), f32tovx10(FinalVertexPositionf32.y), f32tovx10(FinalVertexPositionf32.z));
+        LOG("Final Vertex Position (%f,%f,%f)", f32tofloat(FinalVertexPositionf32.x), f32tofloat(FinalVertexPositionf32.y), f32tofloat(FinalVertexPositionf32.z));
         VertexPosition = VERTEXX10_PACK(f32tovx10(FinalVertexPositionf32.x), f32tovx10(FinalVertexPositionf32.y), f32tovx10(FinalVertexPositionf32.z));
         //VertexPosition = VERTEXX10_PACK(f32tovx10(Positionf32.x), f32tovx10(Positionf32.y), f32tovx10(Positionf32.z));
     }
 
-    //LogAnimationData();
     Renderer::drawModel((void*)modelData);
 
     free(modelData);
@@ -101,9 +99,16 @@ void AnimatedModel::LogAnimationData() const
     
     LOG("\n -- General Model Info --\n", 0);
 
+    // File size in bytes
+    LOG("AnimationDataSize: %d", animDataSize);
+
     // Offset in words
     const uint32_t VertexDataOffset = Header->VertexDataPosition;
     LOG("VertexDataOffset: %d", VertexDataOffset);
+
+    // Size in bytes
+    const uint32_t VertexDataSize = Header->VertexDataSize;
+    LOG("VertexDataSize: %d", VertexDataSize);
 
     // Offset in words
     const uint32_t BoneDataOffset = Header->BoneDataPosition;
@@ -134,10 +139,10 @@ void AnimatedModel::LogAnimationData() const
         LOG("Bone1 %d", VertexInfoBegin[VertexInfoID].BoneID[1]);
         LOG("Bone2 %d", VertexInfoBegin[VertexInfoID].BoneID[2]);
         LOG("Bone3 %d", VertexInfoBegin[VertexInfoID].BoneID[3]);
-        LOG("Weight0 %d", VertexInfoBegin[VertexInfoID].BoneWeight[0]);
-        LOG("Weight1 %d", VertexInfoBegin[VertexInfoID].BoneWeight[1]);
-        LOG("Weight2 %d", VertexInfoBegin[VertexInfoID].BoneWeight[2]);
-        LOG("Weight3 %d\n", VertexInfoBegin[VertexInfoID].BoneWeight[3]);
+        LOG("Weight0 %f", f32tofloat(VertexInfoBegin[VertexInfoID].BoneWeight[0]));
+        LOG("Weight1 %f", f32tofloat(VertexInfoBegin[VertexInfoID].BoneWeight[1]));
+        LOG("Weight2 %f", f32tofloat(VertexInfoBegin[VertexInfoID].BoneWeight[2]));
+        LOG("Weight3 %f\n", f32tofloat(VertexInfoBegin[VertexInfoID].BoneWeight[3]));
     }
 
     // Log bone info

@@ -30,10 +30,10 @@ void Model::GetBoneTransforms(const float TimeS, std::vector<aiMatrix4x4>& Trans
     Transforms.clear();
     Transforms.reserve(m_scene->mAnimations[0]->mNumChannels * AnimationTicks);
 
-    for (int tick = 0; tick < AnimationTicks; tick++)
+    for (unsigned int tick = 0; tick < AnimationTicks; tick++)
     {
         aiMatrix4x4 Matrix;
-        ReadNodeHierarchy(tick, m_scene->mRootNode, Matrix);
+        ReadNodeHierarchy(static_cast<float>(tick), m_scene->mRootNode, Matrix);
 
         for (const BoneInfo& Bone : m_BoneInfo)
         {
@@ -234,8 +234,8 @@ void Model::ReadNodeHierarchy(const float TimeInTicks, const aiNode* pNode, cons
 
     if (pNodeAnim)
     {
-        aiVector3D Scaling;
-        CalcInterpolatedScaling(Scaling, TimeInTicks, pNodeAnim);
+        aiVector3D Scaling(1.0f, 1.0f, 1.0f);
+        //CalcInterpolatedScaling(Scaling, TimeInTicks, pNodeAnim);
         aiMatrix4x4 ScalingM;
         ScalingM.Scaling(Scaling, ScalingM);
 
@@ -250,8 +250,8 @@ void Model::ReadNodeHierarchy(const float TimeInTicks, const aiNode* pNode, cons
 
         NodeTransformation = TranslationM * RotationM * ScalingM;
 
-        printf("Animated node %s Tick %f\n", NodeName.c_str(), TimeInTicks);
-        printMatrix(NodeTransformation, 4);
+        //printf("Animated node %s Tick %f\n", NodeName.c_str(), TimeInTicks);
+        //printMatrix(NodeTransformation, 4);
     }
 
     aiMatrix4x4 GlobalTransformation = ParentTransform * NodeTransformation;

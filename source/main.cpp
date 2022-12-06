@@ -10,8 +10,9 @@
 #include "BoxAnim_fbx_anim_bin.h"
 #include "BoxAnimTexture.h"
 
-//#include "Monkey_fbx_bin.h"
-//#include "Monkey.h"
+#include "Bird_fbx_bin.h"
+#include "Bird_fbx_anim_bin.h"
+#include "Bird.h"
 
 #include "Fox_fbx_bin.h"
 #include "Fox_fbx_anim_bin.h"
@@ -88,46 +89,21 @@ int main(void) {
 	Renderer::setMaterialProperty(GL_EMISSION, RGB15(31, 31, 31));
 	Renderer::setMaterialProperty(GL_AMBIENT, RGB15(31, 31, 31));
 
-/* 	Texture classicTexture = Texture(GL_RGB16, TEXTURE_SIZE_512, TEXTURE_SIZE_512, TEXGEN_OFF, (void*)texture_classicBitmap);
-	classicTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_COLOR0_TRANSPARENT);
-	classicTexture.SetPalette(texture_classicPalLen / 2, (uint16*)texture_classicPal); */
-
-	Texture BoxAnimTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BoxAnimTextureBitmap);
+	/* Texture BoxAnimTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BoxAnimTextureBitmap);
 	BoxAnimTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
-	BoxAnimTexture.SetPalette(BoxAnimTexturePalLen / 2, (uint16*)BoxAnimTexturePal);
+	BoxAnimTexture.SetPalette(BoxAnimTexturePalLen / 2, (uint16*)BoxAnimTexturePal); */
 	
-	/* Texture MonkeyTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)MonkeyBitmap);
-	MonkeyTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
-	MonkeyTexture.SetPalette(MonkeyPalLen / 2, (uint16*)MonkeyPal); */
+	Texture BirdTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)BirdBitmap);
+	BirdTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
+	BirdTexture.SetPalette(BirdPalLen / 2, (uint16*)BirdPal);
 
-/* 	Texture FoxTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)FoxTextureBitmap);
+	/* Texture FoxTexture = Texture(GL_RGB256, TEXTURE_SIZE_256, TEXTURE_SIZE_256, TEXGEN_OFF, (void*)FoxTextureBitmap);
 	FoxTexture.SetParameter(GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T);
 	FoxTexture.SetPalette(FoxTexturePalLen / 2, (uint16*)FoxTexturePal); */
 
 	mainCamera = new PerspectiveCamera({inttof32(0), inttof32(2), inttof32(5)}, 60, floattof32(256.0f / 192.0f), floattof32(0.1f), inttof32(20));
 
-	Mat4x4 FinalVertexTransformation;
-
-	int angle = degreesToAngle(90);
-
-	FinalVertexTransformation.Identity();
-	// Rotation around Y
-	FinalVertexTransformation.values[0] = cosLerp(angle);
-	FinalVertexTransformation.values[2] = sinLerp(angle);
-	FinalVertexTransformation.values[8] = -sinLerp(angle);
-	FinalVertexTransformation.values[10] = cosLerp(angle);
-
-	Vec4 VertexPositionf32;
-	VertexPositionf32.x = floattof32(-1.0f);
-	VertexPositionf32.y = floattof32(-10.0f);
-	VertexPositionf32.z = floattof32(5.0f);
-	VertexPositionf32.w = inttof32(1);
-
-	VertexPositionf32 = FinalVertexTransformation * VertexPositionf32;
-
-	Logger::LogMatrix4x4(*(m4x4*)&FinalVertexTransformation);
-	LOG("", 0);
-	LOG("\n[%f %f %f %f]", f32tofloat(VertexPositionf32.x), f32tofloat(VertexPositionf32.y), f32tofloat(VertexPositionf32.z), f32tofloat(VertexPositionf32.w));
+	AnimatedModel Model(Bird_fbx_bin, Bird_fbx_bin_size, Bird_fbx_anim_bin, Bird_fbx_anim_bin_size);
 
 	float Time = 0.0f;
 	while(1) {
@@ -152,23 +128,24 @@ int main(void) {
 		// rendering
 		Renderer::beginScene();
 
-		Renderer::drawArrow({0, 0, 0}, {inttof32(1), 0, 0}, RGB15(31, 0, 0));
-		Renderer::drawArrow({0, 0, 0}, {0, inttof32(1), 0}, RGB15(0, 31, 0));
-		Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
+		//Renderer::drawArrow({0, 0, 0}, {inttof32(1), 0, 0}, RGB15(31, 0, 0));
+		//Renderer::drawArrow({0, 0, 0}, {0, inttof32(1), 0}, RGB15(0, 31, 0));
+		//Renderer::drawArrow({0, 0, 0}, {0, 0, inttof32(1)}, RGB15(0, 0, 31));
 
 		//Texture::Bind(TestTexture.GetID());
 		// Remember to unbind after rendered the related models
-		BoxAnimTexture.Bind();
+		//BoxAnimTexture.Bind();
+		//FoxTexture.Bind();
+		BirdTexture.Bind();
 
-		//glMatrixMode(GL_MODELVIEW);
-		//glPushMatrix();
-		//glTranslate3f32(inttof32(0), inttof32(2), inttof32(-3));
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslate3f32(inttof32(0), inttof32(-1), inttof32(-3));
+		glScalef32(floattof32(0.4f), floattof32(0.4f), floattof32(0.4f));
 		//Renderer::drawModel(BoxAnim_fbx_bin);
+		Model.Draw(Time);
+		glPopMatrix(1);
 
-		AnimatedModel BoxModel(BoxAnim_fbx_bin, BoxAnim_fbx_bin_size, BoxAnim_fbx_anim_bin, BoxAnim_fbx_anim_bin_size);
-		//AnimatedModel BoxModel(Fox_fbx_bin, Fox_fbx_bin_size, Fox_fbx_anim_bin, Fox_fbx_anim_bin_size);
-		BoxModel.Draw(Time);
-		//glPopMatrix(1);
 
 		Texture::Bind(0);
 

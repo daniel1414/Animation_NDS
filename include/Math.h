@@ -116,14 +116,19 @@ struct Mat4x4
 
 	void Identity()
 	{
-		memset(values, 0, 16 * sizeof(int32));
+		Zero();
 		values[0]  = inttof32(1);
 		values[5]  = inttof32(1);
 		values[10] = inttof32(1);
 		values[15] = inttof32(1);
 	}
 
-	Mat4x4 operator*(const Mat4x4& other)
+	void Zero()
+	{
+		memset(values, 0, 16 * sizeof(int32));
+	}
+
+	Mat4x4 operator*(const Mat4x4& other) const
 	{
 		Mat4x4 result;
 
@@ -137,7 +142,7 @@ struct Mat4x4
 		return result;
 	}
 	
-	Mat4x4 operator*(const int32& value)
+	Mat4x4 operator*(const int32& value) const
 	{
 		Mat4x4 result;
 
@@ -151,7 +156,7 @@ struct Mat4x4
 		return result;
 	}
 
-	Vec4 operator*(const Vec4& other)
+	Vec4 operator*(const Vec4& other) const
 	{
 		Vec4 result;
 
@@ -161,6 +166,17 @@ struct Mat4x4
 		result.w = mulf32(values[12], other.x) + mulf32(values[13], other.y) + mulf32(values[14], other.z) + mulf32(values[15], other.w);
 
 		return result;
+	}
+
+	Mat4x4 operator+(Mat4x4&& other) const
+	{
+		Mat4x4 Result;
+		Result.Zero();
+		for(int i = 0; i < 16; i++)
+		{
+			Result.values[i] = this->values[i] + other.values[i];
+		}
+		return Result;
 	}
 };
 

@@ -92,6 +92,7 @@ uint32_t* ModelConverter::GetAnimationData(uint32_t& OutSize)
     const uint32_t VertexInfoCount = m_VertexInfos.size();
     const size_t VertexDataSize = VertexInfoCount * sizeof(VertexInfo);
     OutSize += VertexDataSize;
+    Header.VertexDataSize = VertexDataSize;
 
     // Bone Data
     Header.BoneDataPosition = HeaderSize / 4 + VertexDataSize / 4;
